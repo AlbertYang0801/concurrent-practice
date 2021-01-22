@@ -1,11 +1,7 @@
-package com.albert.concurrentpractice.threadcreate;
+package com.albert.concurrentpractice.basic.create;
 
-import com.albert.concurrentpractice.TestApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * 线程创建的方式：第一种
@@ -13,8 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author Albert
  * @date 2020/8/14 10:22
  */
-@SpringBootTest(classes = TestApplication.class)
-@RunWith(SpringRunner.class)
 @Slf4j
 public class ThreadTest {
 
@@ -48,7 +42,6 @@ public class ThreadTest {
                 log.info("这是匿名内部类创建的新线程");
             }
         }.start();
-
         log.info("这是主线程，异步执行，比新线程执行快");
     }
 

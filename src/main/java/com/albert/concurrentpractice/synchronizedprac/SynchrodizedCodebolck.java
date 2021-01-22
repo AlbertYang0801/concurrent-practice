@@ -1,4 +1,4 @@
-package com.albert.concurrentpractice.expand.synchronizedthread;
+package com.albert.concurrentpractice.synchronizedprac;
 
 import lombok.SneakyThrows;
 

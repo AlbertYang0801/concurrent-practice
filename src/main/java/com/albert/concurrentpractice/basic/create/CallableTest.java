@@ -1,6 +1,5 @@
-package com.albert.concurrentpractice.threadcreate;
+package com.albert.concurrentpractice.basic.create;
 
-import com.albert.concurrentpractice.TestApplication;
 import com.albert.concurrentpractice.threadpool.ThreadPoolCreate;
 import com.albert.utils.jackson.JsonUtil;
 import com.albert.utils.localdatetime.LocalDateTimeUtils;
@@ -8,9 +7,6 @@ import com.google.common.collect.Lists;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -25,8 +21,6 @@ import java.util.stream.Collectors;
  * @date 2020/8/12 16:38
  */
 @Slf4j
-@SpringBootTest(classes = TestApplication.class)
-@RunWith(SpringRunner.class)
 public class CallableTest {
 
     /**

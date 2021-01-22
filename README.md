@@ -1,64 +1,85 @@
-### 高并发学习和练习
+# Java工程师成长计划-高并发学习总结
+
+[toc]
 
 
-#### 1. 多线程的学习
+## 线程基础操作
 
-* 多线程的三种创建方式学习和源码阅读 2020-8-14 2020-8-24 2020-12-21
-
-* 多线程Callable接口的学习 2020-8-14 2020-8-24
-* 复习CSDN多线程笔记一 2020-8-14
+### 多线程三大特性
+#### 原子性、可见性、有序性
 
 
-#### 2. 线程池的学习
+[原子性练习](src/test/java/com/albert/concurrentpractice/book/chapterone/ThreadAtomicity_01.java)
 
-* 线程池的调度过程学习 2020-8-10 2020-8-20
-* 线程池的四种任务拒绝策略学习 2020-8-10 2020-8-20
-* 线程池的五种类型创建方式和源码阅读 2020-8-12 2020-8-20
+[参考博客：并发三大特性](https://www.cnblogs.com/weixuqin/p/11424688.html)
 
+### 创建线程
 
-#### 3.线程池实战
+#### Thread
+#### Ruunable
+#### Callable
 
-* 使用线程池批量提交Callable实现的线程 2020-12-21
-* 使用线程池分页调用接口 2020-12-21
-
-* 使用定时线程池，根据传入的参数定时调用方法(mail-demo) 2020-10-21
-* 使用定时线程池，根据指定时间发送邮件(mail-demo)  2020-10-22
+[线程的创建方式练习](src/main/java/com/albert/concurrentpractice/basic/create)
 
 
-#### 4.Java高并发实战设计（书本例子练习）
+### 线程停止
+### 线程中断
+### 线程等待(wait)和通知(notify)
+### 挂起(suspend)和继续执行(resume)
+### 等待(join)和礼让线程(yeild)
+### volatile关键字
+### 线程组
+### 守护线程
+### 线程优先级
 
-* 1.5.1 多线程的原子性 2020-8-15 2020-8-20
-* 2.2.2 Thread的stop()方法 2020-8-16 2020-8-20
-* 2.2.3 使用自定义中断标志的方式来终止线程 2020-8-16 2020-8-20
-* 2.2.3 线程中断的三个方法 2020-8-16 2020-8-20
-* 2.2.4 Thread的wait()和notify()方法 2020-8-26
-* 2.2.5 Thread的join()和yeild()方法 2020-8-26
-* 2.3 volatile关键字 2020-8-30
-* 2.4 线程组 2020-8-31
-* 2.5 守护线程 2020-8-31
-* 2.6 线程优先级 2020-8-31
-* 2.7 synchronized关键字的练习 2020-12-28
-* 3.1.1 重入锁的练习 2021-1-11
-* 3.1.2 Condition的练习 2021-1-11
-* 3.1.3 Semaphore信号量的练习 2021-1-12
-* 3.1.4 ReadWriteLock读写锁的练习 2021-1-13
-* 3.1.6 CyclicBarrier循环栅栏的练习 2021-1-13
-* 3.1.7 线程阻塞工具类LockSupport的练习 2021-1-18
-* 3.1.8 RateLimiter限流的练习 2021-1-18
-* 3.2.5 自定义线程工厂的练习 2021-1-18
-* 3.2.6 扩展线程池的练习 2021-1-18
-* 3.2.9 分治框架的练习 2021-1-18
+
+ThreadFactory
 
 
 
-#### 5.高并发扩展
-
-* CountDownLatch学习和练习（实现多线程按照顺序执行） 2020-7-26
-* synchrodized关键字的练习 2020-12-29
-* 自旋锁的练习 2021-1-12
-* AtomicReference类的练习 2021-1-12
-* 可重入锁和不可重入锁的练习(基于自旋锁实现) 2020-1-12
-* Semaphore信号量学习和练习（实现多线程按照顺序执行） 2020-1-12
-* 读写锁ReadWriteLock的练习和总结 2021-1-13
+## 线程池
+线程池实战
+线程池扩展
+Fork/Join框架
 
 
+
+## synchronized关键字
+
+[synchronized关键字的练习](src/main/java/com/albert/concurrentpractice/synchronizedprac)
+
+
+
+## 锁
+
+自旋锁
+可重入锁
+公平锁/非公平锁
+Condition
+读写锁
+
+
+
+## 并发控制工具
+Semaphore
+CountdownLatch
+循环栅栏 CyclicBarrier
+LockSupport阻塞工具
+
+
+
+
+ReadLimiter限流
+ 
+
+## 线程安全集合
+
+CopyOnWriteArrayList
+BlockQueue阻塞队列
+SkipList跳表
+
+
+
+## 参考书籍
+
+[实战Java高并发程序设计（第2版）](https://item.jd.com/12458866.html)
