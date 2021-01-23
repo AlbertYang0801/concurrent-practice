@@ -41,7 +41,8 @@ public class ThreadJoin_06 {
         ChangeIntValue changeIntValue = new ChangeIntValue();
         changeIntValue.start();
         //等待线程结束，等待指定线程执行结束
-        changeIntValue.join();
+//        changeIntValue.join();
+        changeIntValue.join(100);
         System.out.println(i);
     }
 
