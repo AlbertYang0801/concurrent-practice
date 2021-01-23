@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 /**
  * 线程创建的方式：第三种
  * implements Callable
- * 只能和线程池捆绑使用。
  *
  * @author Albert
  * @date 2020/8/12 16:38
@@ -47,11 +46,27 @@ public class CallableTest {
     }
 
     /**
+     * 测试Callable搭配FutureTask一起使用
+     */
+    @SneakyThrows
+    @Test
+    public void testFutureTask() {
+        FillUserCallable fillUserCallable = new FillUserCallable();
+        //使用FutureTask封装Callable
+        FutureTask<UserPO> futureTask = new FutureTask<>(fillUserCallable);
+        //因为FutureTask实现了Runnable接口,所以可以使用Thread创建线程
+        new Thread(futureTask).start();
+        UserPO user = futureTask.get();
+        System.out.println(user.toString());
+    }
+
+    /**
      * 使用实现Callable的类
+     * 搭配线程池
      */
     @Test
     @SneakyThrows
-    public void fillUserCallable(){
+    public void fillUserCallable() {
         FillUserCallable fillUserCallable = new FillUserCallable();
         //开启线程池提交任务
         ExecutorService executorService = Executors.newCachedThreadPool();
