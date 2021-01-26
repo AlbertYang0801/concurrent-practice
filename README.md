@@ -1,3 +1,5 @@
+
+
 # Java工程师成长计划-高并发学习总结
 ```
          _______________________________________________        
@@ -8,6 +10,8 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
  /      |_______________________________________________|     \ 
 /__________)                                        (__________\
 ```
+
+
 
 * [Java工程师成长计划-高并发学习总结](#java工程师成长计划-高并发学习总结)
   * [一、多线程基础](#一、多线程基础)
@@ -23,12 +27,21 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [守护线程](#守护线程)
     * [线程优先级](#线程优先级)
   * [二、线程池](#二、线程池)
-    * [线程池的七个参数](#线程池的七个参数)
     * [线程池的调度过程](#线程池的调度过程)
+    * [线程池创建时的七个参数](#线程池创建时的七个参数)
+    * [四种拒绝策略](#四种拒绝策略)
+      * [直接抛出异常：AbortPolicy](#直接抛出异常：abortpolicy)
+      * [调用当前线程：CallerRunsPolicy](#调用当前线程：callerrunspolicy)
+      * [不做处理： DiscardPolicy](#不做处理：-discardpolicy)
+      * [删除队列任务： DiscardOldestPolicy](#删除队列任务：-discardoldestpolicy)
     * [JDK对线程池的支持](#jdk对线程池的支持)
-    * [线程池实战](#线程池实战)
+    * [常见线程池](#常见线程池)
+      * [缓存型线程池：CachedThreadPool](#缓存型线程池：cachedthreadpool)
+      * [定长型线程池： FixedThreadPool](#定长型线程池：-fixedthreadpool)
+      * [单线程线程池：SingleThreadExecutor](#单线程线程池：singlethreadexecutor)
     * [自定义ThreadFactory](#自定义threadfactory)
     * [线程池扩展](#线程池扩展)
+    * [线程池实战](#线程池实战)
     * [Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
   * [三、Synchronized关键字](#三、synchronized关键字)
   * [四、Lock&Condition](#四、lockcondition)
@@ -53,7 +66,9 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 
 
 
----
+
+
+
 ```
  __    __   _______  __       __        ______          .___________. __    __  .______       _______     ___       _______  
 |  |  |  | |   ____||  |     |  |      /  __  \         |           ||  |  |  | |   _  \     |   ____|   /   \     |       \ 
@@ -263,12 +278,273 @@ Java中Thread提供了关于线程中断的三个方法：
 ---
 ## 二、线程池
 
-### 线程池的七个参数
 ### 线程池的调度过程
+
+1. 根据初始化参数创建线程池，刚创建时，线程池内没有线程。
+2. 当有新的任务进到线程池的时候，会立即新增线程执行任务。
+3. 若线程数等于核心线程数时，这时进来的任务会被添加到任务队列中，而线程会从任务队列中获取任务执行。
+4. 线程数等于核心线程数且任务队列已满，这时候会在线程池中创建新线程来执行任务。
+5. 若线程数等于最大线程数，且任务队列已满，此时会执行线程池对应的拒绝策略。
+6. 当任务队列中没有任务，且线程等待时间超过空闲时间，则该线程会被回收。最终线程池中的线程数量会保持在核心线程数的大小。
+
+
+
+
+### 线程池创建时的七个参数
+
+```
+//源码
+public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler) {
+       ......
+    }
+```
+
+- int corePoolSize
+
+>核心线程数。即使在空闲时也要保留在线程池中的线程数，除非设置了allowCoreThreadTimeOut。
+
+- int maximumPoolSize
+>最大线程数。当线程数大于核心线程数时，一个任务被提交到线程池后，首先会缓存到工作队列中，如果工作队列满了，则会在线程池中创建一个新线程，而线程数量会有一个最大数量的限制，即为maximumPoolSize。
+
+- long keepAliveTime
+>线程空闲时间。一个线程处于空闲，并且线程数量大于核心线程数，那么该线程会在指定时间后被回收，指定时间由keepAliveTime指定。
+
+- TimeUnit unit
+> 线程空闲时间单位。
+
+- BlockingQueue<Runnable> workQueue
+> 任务队列。当线程池没有空闲线程时，在执行任务之前将任务保存在队列中，该队列仅保存由execute方法提交的任务。
+
+- ThreadFactory threadFactory
+> 线程工厂。
+
+- RejectedExecutionHandler handler
+> 任务拒绝策略。当任务队列里的任务长度达到最大，线程池中的线程数量达到最大，就会执行任务拒绝策略。
+
+
+
+
+
+### 四种拒绝策略
+
+#### 直接抛出异常：AbortPolicy
+>默认的任务拒绝策略，对于新增任务，拒绝处理，直接抛出RejectedExecutionException异常。
+
+```
+//源码
+public static class AbortPolicy implements RejectedExecutionHandler {
+    
+    public AbortPolicy() { }
+
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        //直接抛出异常
+        throw new RejectedExecutionException("Task " + r.toString() +
+                                             " rejected from " +
+                                             e.toString());
+    }
+}
+```
+
+#### 调用当前线程：CallerRunsPolicy
+>调用自己的线程来执行任务，不创建新的线程，而是用自己当前线程进行执行，会降低对于新任务的提交速度，影响整体性能。如果程序能够容许延时，并且不能丢弃每一个任务，即可采取这个策略。
+```
+//源码
+public static class CallerRunsPolicy implements RejectedExecutionHandler {
+   
+    public CallerRunsPolicy() { }
+
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        if (!e.isShutdown()) {
+            //调用自己的线程执行
+            r.run();
+        }
+    }
+}
+```
+
+
+#### 不做处理： DiscardPolicy
+>不做任何处理，直接丢掉该任务.
+```
+//源码
+public static class DiscardPolicy implements RejectedExecutionHandler {
+   
+    public DiscardPolicy() { }
+
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+    }
+}
+```
+
+#### 删除队列任务： DiscardOldestPolicy
+>删除任务队列中最早的任务，将新增任务添加到任务队列中。
+```
+//源码
+public static class DiscardOldestPolicy implements RejectedExecutionHandler {
+   
+    public DiscardOldestPolicy() { }
+
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        if (!e.isShutdown()) {
+            //删除线程池的任务队列的第一个元素
+            e.getQueue().poll();
+            e.execute(r);
+        }
+    }
+}
+```
+
 ### JDK对线程池的支持
-### 线程池实战
+
+![imgae/ThreadPoolExecutor.png](imgae/ThreadPoolExecutor.png)
+
+ThreadPoolExecutor表示一个线程池，里面包含了创建线程池的实现。
+
+[java.util.concurrent.Executors](jetbrains://idea/navigate/reference?project=concurrent-practice&fqn=java.util.concurrent.Executors)
+
+Executors是一个线程池工厂，可以通过它获取一个具有特定功能的线程池。
+
+
+### 常见线程池
+
+#### 缓存型线程池：CachedThreadPool
+
+>可灵活创建线程，如果线程池长度超过任务长度，可灵活回收线程。
+
+```
+//源码
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>());
+}
+
+public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>(),
+                                  threadFactory);
+}
+```
+
+- CachedThreadPool()线程池的创建原理：
+>  实际上是创建了一个ThreadPoolExecutor()对象。
+>- 指定核心线程数为0，即线程池最小的线程数为0；
+>- 指定线程池最大允许存在的线程数为Integer.MAX_VALUE；
+>- 指定空闲线程的销毁时间是60s；
+>- 指定任务队列为同步队列SynchronousQueue只能包含一个任务的队列；
+>- 线程工厂可使用默认的或自定义的线程工程；
+>- 任务拒绝策略使用默认的ThreadPoolExecutor.AbortPolicy对于新增任务，拒绝处理，直接抛出RejectedExecutionException异常。
+
+- CachedThreadPool()线程池的使用：任务队列只允许存放一个任务，线程池中若有任务进来，则立刻新建线程去执行任务。若有大量任务同时进来，则在线程池中新建对应的线程，若线程空闲60s，则会自动回收。
+
+- CachedThreadPool()线程池的好处：由于CachedThreadPool()线程池允许线程数量很大，并且会自动回收，非常适合执行数量很大的短期任务。
+
+- CachedThreadPool()线程池的弊端：允许的创建线程数量为Integer.MAX_VALUE，可能会创建大量的线程，从而导致OOM(内存溢出)。（出自阿里规约）
+
+
+
+
+
+#### 定长型线程池： FixedThreadPool
+
+>固定线程池的线程数量，控制线程数，多余的任务在任务队列中等待。
+
+```
+//源码
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>());
+}
+
+public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>(),
+                                  threadFactory);
+}
+```
+
+- FixedThreadPool()线程池的创建原理:
+>  实际上是创建了一个ThreadPoolExecutor()对象.
+>- 指定核心线程数和最大线程数都为n，即线程池一直保持拥有着n个线程；
+>- 指定空闲线程的销毁时间是0；
+>- 指定任务队列为无界队列LinkedBlockingQueue，队列长度为Integer.MAX_VALUE的队列；
+>- 线程工厂可使用默认的或自定义的线程工程；
+>- 任务拒绝策略使用默认的ThreadPoolExecutor.AbortPolicy对于新增任务，拒绝处理，直接抛出RejectedExecutionException异常。
+
+- FixedThreadPool()线程池的使用：线程池从初始化开始便恒定拥有n个线程，不存在线程个数的增减，任务队列允许放接近无穷的任务，即线程池没有线程可以处理新任务时，会将新任务加入任务队列中，该线程池任务的拒绝策略不会执行，因为任务队列被允许一直放入任务。
+
+- FixedThreadPool()线程池的好处：由于FixedThreadPool()线程池线程数量恒定，非常适合执行时间长且任务量固定的任务。
+
+- FixedThreadPool()线程池的弊端：允许的任务队列长度为Integer.MAX_VALUE，可能会堆积大量的任务请求，从而导致OOM(内存溢出)。（出自阿里规约）
+
+
+
+
+
+
+#### 单线程线程池：SingleThreadExecutor
+
+>线程池只有一个线程，若因为任务失败而终止当前线程，则新的线程会替代它继续执行后续任务。
+
+```
+//源码
+public static ExecutorService newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>()));
+}
+
+public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>(),
+                                threadFactory));
+}
+```
+
+- SingleThreadExecutor()线程池的创建原理：
+>实际上是创建了一个ThreadPoolExecutor()对象。
+>- 指定核心线程数和最大线程数都为1，即线程池一直保持拥有着1个线程；
+>- 指定空闲线程的销毁时间是0；
+>- 指定任务队列为队列长度为Integer.MAX_VALUE的队列；
+>- 线程工厂可使用默认的或自定义的线程工程；
+>- 任务拒绝策略使用默认的ThreadPoolExecutor.AbortPolicy对于新增任务，拒绝处理，直接抛出RejectedExecutionException异常。
+
+- SingleThreadExecutor()线程池的使用：线程池只初始化并维护一个线程，并设置LinkedBlockingQueue为任务队列。
+
+- SingleThreadExecutor()线程池的好处：使用SingleThreadExecutor来自动维护一个单线程。
+
+- SingleThreadExecutor()线程池的弊端：允许的任务队列长度为Integer.MAX_VALUE，可能会堆积大量的任务请求，从而导致OOM(内存溢出)。（出自阿里规约）
+
+
+
+
+
+
+
+
 ### 自定义ThreadFactory
+
+
+
 ### 线程池扩展
+
+
+### 线程池实战
+
+
+
 ### Fork/Join(分而治之)线程池框架
 
 

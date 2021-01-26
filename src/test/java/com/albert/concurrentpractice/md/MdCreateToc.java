@@ -1,4 +1,4 @@
-package com.albert.utils;
+package com.albert.concurrentpractice.md;
 
 import com.github.houbb.markdown.toc.core.impl.AtxMarkdownToc;
 import com.github.houbb.markdown.toc.vo.TocGen;
