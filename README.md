@@ -1,5 +1,4 @@
 
-
 # Java工程师成长计划-高并发学习总结
 ```
          _______________________________________________        
@@ -39,8 +38,8 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
       * [缓存型线程池：CachedThreadPool](#缓存型线程池：cachedthreadpool)
       * [定长型线程池： FixedThreadPool](#定长型线程池：-fixedthreadpool)
       * [单线程线程池：SingleThreadExecutor](#单线程线程池：singlethreadexecutor)
-    * [自定义ThreadFactory](#自定义threadfactory)
-    * [线程池扩展](#线程池扩展)
+      * [定时线程池：ScheduledThreadPool](#定时线程池：scheduledthreadpool)
+      * [抢占式线程池：WorkStealingPool](#抢占式线程池：workstealingpool)
     * [线程池实战](#线程池实战)
     * [Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
   * [三、Synchronized关键字](#三、synchronized关键字)
@@ -48,8 +47,9 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [自旋锁](#自旋锁)
     * [可重入锁/不可重入锁](#可重入锁不可重入锁)
     * [公平锁/非公平锁](#公平锁非公平锁)
+    * [重入锁ReentrantLock](#重入锁reentrantlock)
+    * [重入锁的好搭档：Condition](#重入锁的好搭档：condition)
     * [读写锁ReadWriteLock](#读写锁readwritelock)
-    * [Condition](#condition)
   * [五、并发控制工具](#五、并发控制工具)
     * [CountdownLatch](#countdownlatch)
     * [Semaphore](#semaphore)
@@ -63,7 +63,6 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [BlockQueue阻塞队列](#blockqueue阻塞队列)
     * [SkipList跳表](#skiplist跳表)
   * [参考书籍](#参考书籍)
-
 
 
 
@@ -113,12 +112,12 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
                     `"`                   `"`             
 ```
 
----
 
 
 ## 一、多线程基础
-
 ### 多线程三大特性
+---
+
 1.  原子性
 >原子性是指在一个操作中就是cpu不可以在中途暂停然后再调度，既不被中断操作，要不执行完成，要不就不执行。
 如果一个操作时原子性的，那么多线程并发的情况下，就不会出现变量被修改的情况
@@ -142,7 +141,7 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
   - 使用Atomic相关类保证原子性。
 
 
-参考：[原子性练习](src/test/java/com/albert/concurrentpractice/book/chapterone/ThreadAtomicity_01.java)
+参考：[原子性练习](src/test/java/com/albert/concurrent/book/chapterone/ThreadAtomicity_01.java)
 
 
 2. 可见性
@@ -171,7 +170,7 @@ java存在指令重排，所以存在有序性问题。
 参考博客：[并发三大特性](https://www.cnblogs.com/weixuqin/p/11424688.html)
 
 ### 线程创建的三种方式
-
+---
 -  Thread
 > 不推荐使用。Java是单继承，所以不推荐使用继承来实现并发类。
 > 注意：直接调用run()方法，相当于调用了该方法，没有开启新线程。只有调用start()方法，才是开启了一个新线程和主线程争夺资源。
@@ -180,22 +179,24 @@ java存在指令重排，所以存在有序性问题。
 -  Callable
 > 推荐使用，有结果返回。可与FutureTask搭配使用，也可以与线程池捆绑使用，搭配Future获取任务执行完成的返回值。
 
-参考：[线程的三种创建方式练习目录](src/main/java/com/albert/concurrentpractice/basic/create)
+参考：[线程的三种创建方式练习目录](src/main/java/com/albert/concurrent/basic/create)
 
 
 ### 线程停止
+---
 - stop()方法(不推荐使用)
 > stop()方法被调用的时候，会直接释放线程拥有的锁对象，这样会破坏临界区的原子性。
 
-参考：[stop()方法的练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadStop_01.java)
+参考：[stop()方法的练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadStop_01.java)
 
 - stop()方法的优化
 > 优化stop()方法，在调用时，不直接释放锁资源，保证临界区资源执行完成后再释放锁资源。
 
-参考：[stop()方法的优化练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadStopResolve_02.java)
+参考：[stop()方法的优化练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadStopResolve_02.java)
 
 
 ### 线程中断
+---
 >线程中断并不会立即将线程退出，而是发出一个中断信号。目标线程接收中断信号后，如何退出由目标线程的逻辑决定。
 
 Java中Thread提供了关于线程中断的三个方法：
@@ -203,63 +204,67 @@ Java中Thread提供了关于线程中断的三个方法：
  * isInterrupted() 判断线程中断的状态
  * interrupted() 判断线程中断的状态，并重置中断标志(实际是调用了isInterrupted()方法，并传入中断标志数据)
 
-参考：[线程中断的相关练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadInterruption_03.java)
+参考：[线程中断的相关练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadInterruption_03.java)
 
 
 ### 线程等待(wait)和通知(notify)
+---
 >wait()方法和notify()方法是Object类里的方法，意味着任何对象都可以调用这两个方法。wait()方法使用时会释放锁对象，进入等待。而notify会随机唤醒一个等待的线程，被唤醒的线程会重新竞争锁对象。还有一个方法notifyAll()，会唤醒所有进入等待的线程。注意：不论是wait()方法还是notify()方法，都需要获取锁对象才能调用。
 
 
-参考：[wait()和notify()的相关练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadWaitAndNotify_04.java)
+参考：[wait()和notify()的相关练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadWaitAndNotify_04.java)
 
 >Thread.sleep()方法和Object.wait()一样也可以让线程等待，而sleep()可以指定等待时间，wait()可以被唤醒。还有一个主要区别，wait()会释放目标对象的锁，而sleep()不会释放任何资源。
 
 ### 挂起(suspend)和继续执行(resume)
-
+---
 - suspend()会阻塞当前线程，但是不会释放锁对象。（不推荐使用）
 - resume()会取消当前线程的阻塞状态。
 
-参考：[suspend()和resume()的相关练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadSuspendAndResume_05.java)
+参考：[suspend()和resume()的相关练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadSuspendAndResume_05.java)
 
 
 ### 等待线程结束(join)和礼让线程(yeild)
-
+---
 - join()方法
 > 等待调用线程执行结束。源码分析：实际上是调用了wait()方法在当前实例上，实现线程等待。而线程执行完成之前会调用notifyAll()方法通知等待线程继续执行。
 - yeild()方法
 >让出线程资源,但是会重新竞争。
 
-参考：[join()和yeild的练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadJoin_06.java)
-
+参考：[join()和yeild的练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadJoin_06.java)
 
 
 ### volatile关键字
-
+---
 - volatile变量可保证可见性，但不保证原子性。volatile修饰变量时，会把该线程本地内存中的该变量刷新到主存中。
 - volatile变量会禁止指令重排。
 
-参考：[volatile关键字练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadVolatile_07.java)
+参考：[volatile关键字练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadVolatile_07.java)
 
 参考博客：[Java volatile关键字最全总结：原理剖析与实例讲解(简单易懂)
 ](https://blog.csdn.net/u012723673/article/details/80682208?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param)
 
 
 ### 线程组
-
+---
 可按照功能将不同线程分组。
 
-参考：[线程组的练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadGroup_08.java)
+参考：[线程组的练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadGroup_08.java)
+
 
 ### 守护线程
+---
 守护线程是一种特殊的线程，会在所有的用户线程执行完成之后，随之结束。
 
-参考：[守护线程的练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadDaemon_09.java)
+参考：[守护线程的练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadDaemon_09.java)
 
 
 ### 线程优先级
+---
 线程之间抢占资源时，线程优先级越高，机会越大。
 
-参考：[线程优先级的练习](src/test/java/com/albert/concurrentpractice/book/chaptertwo/ThreadPriority_10.java)
+参考：[线程优先级的练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadPriority_10.java)
+
 
 ---
 
@@ -275,11 +280,10 @@ Java中Thread提供了关于线程中断的三个方法：
 ```
 
 
----
 ## 二、线程池
 
 ### 线程池的调度过程
-
+---
 1. 根据初始化参数创建线程池，刚创建时，线程池内没有线程。
 2. 当有新的任务进到线程池的时候，会立即新增线程执行任务。
 3. 若线程数等于核心线程数时，这时进来的任务会被添加到任务队列中，而线程会从任务队列中获取任务执行。
@@ -291,7 +295,7 @@ Java中Thread提供了关于线程中断的三个方法：
 
 
 ### 线程池创建时的七个参数
-
+---
 ```
 //源码
 public ThreadPoolExecutor(int corePoolSize,
@@ -322,7 +326,7 @@ public ThreadPoolExecutor(int corePoolSize,
 > 任务队列。当线程池没有空闲线程时，在执行任务之前将任务保存在队列中，该队列仅保存由execute方法提交的任务。
 
 - ThreadFactory threadFactory
-> 线程工厂。
+> 线程工厂，可设置线程为守护线程，自定义线程名称等。
 
 - RejectedExecutionHandler handler
 > 任务拒绝策略。当任务队列里的任务长度达到最大，线程池中的线程数量达到最大，就会执行任务拒绝策略。
@@ -332,7 +336,7 @@ public ThreadPoolExecutor(int corePoolSize,
 
 
 ### 四种拒绝策略
-
+---
 #### 直接抛出异常：AbortPolicy
 >默认的任务拒绝策略，对于新增任务，拒绝处理，直接抛出RejectedExecutionException异常。
 
@@ -401,7 +405,7 @@ public static class DiscardOldestPolicy implements RejectedExecutionHandler {
 ```
 
 ### JDK对线程池的支持
-
+---
 ![imgae/ThreadPoolExecutor.png](imgae/ThreadPoolExecutor.png)
 
 ThreadPoolExecutor表示一个线程池，里面包含了创建线程池的实现。
@@ -412,6 +416,13 @@ Executors是一个线程池工厂，可以通过它获取一个具有特定功�
 
 
 ### 常见线程池
+---
+>java从jdk1.5开始提供了线程池的四种类型：分别为CachedThreadPool、FixedThreadPool、ScheduledThreadPool、SingleThreadExecutor；从jdk1.8开始提供了WorkStealingPool。这5种线程池都位于Executors线程池工厂中。
+
+
+注意：由于Executors线程池工厂创建出的线程存在一定弊端（具体见各个线程池的分析）,推荐使用手动创建的方式来创建线程池。（出自阿里规约）
+
+参考：[常见线程池的练习](src/test/java/com/albert/concurrent/threadpool/ThreadPoolCreateTest.java)
 
 #### 缓存型线程池：CachedThreadPool
 
@@ -487,10 +498,6 @@ public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory thr
 - FixedThreadPool()线程池的弊端：允许的任务队列长度为Integer.MAX_VALUE，可能会堆积大量的任务请求，从而导致OOM(内存溢出)。（出自阿里规约）
 
 
-
-
-
-
 #### 单线程线程池：SingleThreadExecutor
 
 >线程池只有一个线程，若因为任务失败而终止当前线程，则新的线程会替代它继续执行后续任务。
@@ -528,24 +535,81 @@ public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactor
 - SingleThreadExecutor()线程池的弊端：允许的任务队列长度为Integer.MAX_VALUE，可能会堆积大量的任务请求，从而导致OOM(内存溢出)。（出自阿里规约）
 
 
+#### 定时线程池：ScheduledThreadPool
+
+> 可以定时执行任务。
+
+```
+//源码
+public ScheduledThreadPoolExecutor(int corePoolSize) {
+    super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
+          new DelayedWorkQueue());
+}
+
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue) {
+    this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+         Executors.defaultThreadFactory(), defaultHandler);
+}
+```
+
+- ScheduledThreadPool()线程池的创建原理：
+>- 实际上是创建了一个ThreadPoolExecutor()对象。
+>- 可指定核心线程数。
+>- 最大线程数为Integer.MAX_VALUE。
+>- 指定空闲线程的销毁时间是0；
+>- 指定任务队列为专门延时队列DelayedWorkQueue，来实现定时任务的执行。
+>- 线程工厂可使用默认的或自定义的线程工程。 
+>- 任务拒绝策略使用默认的ThreadPoolExecutor.AbortPolicy对于新增任务，拒绝处理，直接抛出RejectedExecutionException异常。
 
 
+- ScheduledThreadPool()线程池的使用：可实现定时执行任务，或延时执行任务。
+
+- ScheduledThreadPool()线程池的好处：可以定时周期的执行任务。
+
+- ScheduledThreadPool()线程池的弊端：允许的线程最大长度为Integer.MAX_VALUE，可能会创建大量的线程，从而导致OOM(内存溢出)。（出自阿里规约）
 
 
+#### 抢占式线程池：WorkStealingPool
+
+>抢占式的线程池，能合理的使用CPU进行任务处理，适合很耗时的任务。
+
+```
+//源码
+public static ExecutorService newWorkStealingPool() {
+    return new ForkJoinPool
+        (Runtime.getRuntime().availableProcessors(),
+         ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+         null, true);
+}
+
+public static ExecutorService newWorkStealingPool(int parallelism) {
+    return new ForkJoinPool
+        (parallelism,
+         ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+         null, true);
+}
+```
+
+- WorkStealingPool()线程池的创建原理：
+>- 实际上是创建了一个ForkJoinPool()对象。
+>- 传入参数则使用传入的线程数量，若不传入，则默认使用当前计算机可用的CPU数量。
 
 
-### 自定义ThreadFactory
-
-
-
-### 线程池扩展
+ForkJoinPool线程池的分析可见：[Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
 
 
 ### 线程池实战
+---
 
+参考：[线程池和Future的组合练习](src/test/java/com/albert/concurrent/threadpool/ThreadPoolCallable.java)
 
 
 ### Fork/Join(分而治之)线程池框架
+---
 
 
 
@@ -586,17 +650,170 @@ public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactor
 
 ## 三、Synchronized关键字
 
-[synchronized关键字的练习](src/main/java/com/albert/concurrentpractice/synchronizedprac)
+[synchronized关键字的练习](src/main/java/com/albert/concurrent/synchronizedprac)
 
 
 ---
 ## 四、Lock&Condition
 
 ### 自旋锁
+
+---
+
+>定义：自旋锁是采用让当前线程不停地的在循环体内执行实现的，当循环的条件被其他线程改变时 才能进入临界区。
+
+- 使用原子引用变量AtomicReference<V>实现自旋锁。
+
+```
+public class SpinLock {
+
+    /**
+     * 原子引用变量
+     */
+    private static AtomicReference<Thread> atomicReference = new AtomicReference<>();
+
+    public void lock() {
+        Thread thread = Thread.currentThread();
+        //当atomicReference为空时，将当前线程赋值给atomicReference（注意：第一个线程进入，while内条件为false，不会进入循环）
+        while (!atomicReference.compareAndSet(null, thread)) {
+        }
+    }
+
+    public void unlock() {
+        Thread thread = Thread.currentThread();
+        atomicReference.compareAndSet(thread, null);
+    }
+
+
+}
+```
+注意：该例子为不可重入锁，且为非公平锁，获得锁的先后顺序，不会按照进入lock的先后顺序进行(可重入锁和公平锁的实现见下方章节)。
+
+
+
 ### 可重入锁/不可重入锁
+
+---
+
+
+- 不可重入锁：与可重入相反，获取锁后不能重复获取，否则会死锁（自己锁自己）。
+
+参考：[基于自旋锁实现的不可重入锁的练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantSpinLock.java)
+
+- 可重入锁：当线程获取某个锁后，还可以继续获取它，可以递归调用，而不会发生死锁；
+
+
+参考：[基于自旋锁实现的可重入锁练习](src/main/java/com/albert/concurrent/lock/spinlock/ReentrantSpinLock.java)
+
+```
+public class ReentrantSpinLock extends SpinLock {
+
+    private static int count = 0;
+
+    @Override
+    public void lock() {
+        Thread thread = Thread.currentThread();
+        //如果引用变量等于当前线程，计数器加1
+        if (atomicReference.get() == thread) {
+            count++;
+            return;
+        }
+        while (!atomicReference.compareAndSet(null, thread)) {
+        }
+    }
+
+    @Override
+    public void unlock() {
+        Thread thread = Thread.currentThread();
+        if(atomicReference.get()==thread){
+            //如果计数器为0，释放锁资源
+            if(count==0){
+                atomicReference.compareAndSet(thread,null);
+                return;
+            }
+            count--;
+        }
+    }
+
+
+}
+```
+
+**基于自旋锁可以实现可重入锁和不可重入锁。**
+
+参考：[可重入锁和不可重入锁的练习](src/main/java/com/albert/concurrent/lock/SpinLockPractice.java)
+
+
+
 ### 公平锁/非公平锁
+
+---
+
+- 非公平锁：已经获取锁对象的线程有更大概率继续持有相同的锁对象。
+  - 优点：执行效率高
+  - 缺点：容易造成饥饿现象。
+  
+- 公平锁：多个线程会按照顺序执行
+  - 优点：不会造成饥饿现象。
+  - 缺点：需要维护一个有序队列，实现成本高，性能低下。
+
+注意：synchronized关键字实现的同步，锁对象是非公平的。
+
+**在上方介绍自旋锁部分，基于原子引用变量AtomicReference<V>实现的自旋锁是一个非公平锁。**
+
+可参考：[非公平锁的的练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantSpinLock.java)
+
+**以该类为基础进行优化，维护一个有序队列实现公平锁。**
+
+参考：[公平锁的的练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantFairSpinLock.java)
+
+
+
+### 重入锁ReentrantLock
+---
+>特点：可重入、可中断、可实现公平锁、可获取锁状态。
+
+1. 可重入。
+>可多次获取锁对象，但是释放锁的次数要和获取锁的次数保持一致。
+- 若获取锁对象比释放的次数多。则当前线程会一直持有锁对象而不释放，其他线程会因为拿不到锁对象而无法进入临界区。
+- 若释放锁的次数比获取锁对象的次数多，则会产生IllegalMonitorStateException异常。
+
+2. 可中断。
+>提供了lockInterruptibly()方法；获取锁之后，若有中断发生，会响应中断，停止获取锁对象，并释放已有锁。
+
+**中断可有效解决线程间的死锁问题，线程限时等待请求锁也可以有效解决死锁问题。**
+
+3. 可实现公平锁。
+```
+//创建锁对象时，指定为true，即可实现公平锁。
+ReentrantLock fairLock = new ReentrantLock(true);
+```
+
+**主要方法：**
+- lock()方法：获得锁，如果锁已经被占用，则等待。
+- unlock()方法：释放锁。
+- tryLock()方法：尝试获得锁，如果成功返回true，失败返回false。该方法不等待，立即返回。
+- tryLock(long timeout, TimeUnitunit)方法：在指定时间内尝试获得锁，如果成功返回true，失败返回false。**(使用此方法申请锁，可有效避免死锁问题)**
+- isHeldByCurrentThread()方法：判断当前线程是否持有该锁。
+
+**参考练习：**
+
+- [重入锁的练习](src/test/java/com/albert/concurrent/book/chapterthree/ReenterLock_01.java)
+
+- [重入锁中断特性的练习](src/test/java/com/albert/concurrent/book/chapterthree/LockInterrupt_02.java)
+
+- [限时等待锁的练习-指定等待时间](src/test/java/com/albert/concurrent/book/chapterthree/LockTime_03.java)
+
+- [限时等待锁的练习-不指定等待时间](src/test/java/com/albert/concurrent/book/chapterthree/LockTime_04.java)
+
+- [公平锁的练习](src/test/java/com/albert/concurrent/book/chapterthree/FairLock_05.java)
+
+### 重入锁的好搭档：Condition
+--- 
+
+
 ### 读写锁ReadWriteLock
-### Condition
+---
 
 
 --- 
