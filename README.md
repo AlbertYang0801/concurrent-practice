@@ -741,7 +741,7 @@ public class ReentrantSpinLock extends SpinLock {
 
 **基于自旋锁可以实现可重入锁和不可重入锁。**
 
-参考：[可重入锁和不可重入锁的练习](src/main/java/com/albert/concurrent/lock/SpinLockPractice.java)
+参考：[可重入锁和不可重入锁的对比练习](src/main/java/com/albert/concurrent/lock/reentrant/SpinLockPractice.java)
 
 
 
@@ -761,11 +761,15 @@ public class ReentrantSpinLock extends SpinLock {
 
 **在上方介绍自旋锁部分，基于原子引用变量AtomicReference<V>实现的自旋锁是一个非公平锁。**
 
-可参考：[非公平锁的的练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantSpinLock.java)
+可参考：[非公平锁的的实现练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantSpinLock.java)
 
 **以该类为基础进行优化，维护一个有序队列实现公平锁。**
 
-参考：[公平锁的的练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantFairSpinLock.java)
+参考：[公平锁的实现练习](src/main/java/com/albert/concurrent/lock/spinlock/NoReentrantFairSpinLock.java)
+
+**基于自旋锁可以实现公平锁和非公平锁。**
+
+参考：[公平锁锁和非公平锁的对比练习](src/main/java/com/albert/concurrent/lock/fair/FairSpinLockPractice.java)
 
 
 
