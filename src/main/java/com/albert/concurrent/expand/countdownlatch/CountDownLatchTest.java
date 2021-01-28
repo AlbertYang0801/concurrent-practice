@@ -1,13 +1,9 @@
 package com.albert.concurrent.expand.countdownlatch;
 
-import com.albert.concurrent.TestApplication;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Random;
 import java.util.concurrent.*;
@@ -16,8 +12,6 @@ import java.util.concurrent.*;
  * @author Albert
  * @date 2020/7/26 01:04
  */
-@SpringBootTest(classes = TestApplication.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @Slf4j
 public class CountDownLatchTest {
 

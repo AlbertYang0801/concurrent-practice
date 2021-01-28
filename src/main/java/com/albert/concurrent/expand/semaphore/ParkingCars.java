@@ -32,8 +32,7 @@ public class ParkingCars implements Runnable {
             //获取信号量许可，获取车位（若信号量可用许可为0，则线程进入等待，直到有车位释放）
             semaphore.acquire();
             System.out.println(carNo + "号车子开始停车");
-            Thread.sleep(300);
-            System.out.println(carNo + "号车子停止停车");
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {

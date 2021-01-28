@@ -10,62 +10,7 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 /__________)                                        (__________\
 ```
 
-
-
-* [Java工程师成长计划-高并发学习总结](#java工程师成长计划-高并发学习总结)
-  * [一、多线程基础](#一、多线程基础)
-    * [多线程三大特性](#多线程三大特性)
-    * [线程创建的三种方式](#线程创建的三种方式)
-    * [线程停止](#线程停止)
-    * [线程中断](#线程中断)
-    * [线程等待(wait)和通知(notify)](#线程等待wait和通知notify)
-    * [挂起(suspend)和继续执行(resume)](#挂起suspend和继续执行resume)
-    * [等待线程结束(join)和礼让线程(yeild)](#等待线程结束join和礼让线程yeild)
-    * [volatile关键字](#volatile关键字)
-    * [线程组](#线程组)
-    * [守护线程](#守护线程)
-    * [线程优先级](#线程优先级)
-  * [二、线程池](#二、线程池)
-    * [线程池的调度过程](#线程池的调度过程)
-    * [线程池创建时的七个参数](#线程池创建时的七个参数)
-    * [四种拒绝策略](#四种拒绝策略)
-      * [直接抛出异常：AbortPolicy](#直接抛出异常：abortpolicy)
-      * [调用当前线程：CallerRunsPolicy](#调用当前线程：callerrunspolicy)
-      * [不做处理： DiscardPolicy](#不做处理：-discardpolicy)
-      * [删除队列任务： DiscardOldestPolicy](#删除队列任务：-discardoldestpolicy)
-    * [JDK对线程池的支持](#jdk对线程池的支持)
-    * [常见线程池](#常见线程池)
-      * [缓存型线程池：CachedThreadPool](#缓存型线程池：cachedthreadpool)
-      * [定长型线程池： FixedThreadPool](#定长型线程池：-fixedthreadpool)
-      * [单线程线程池：SingleThreadExecutor](#单线程线程池：singlethreadexecutor)
-      * [定时线程池：ScheduledThreadPool](#定时线程池：scheduledthreadpool)
-      * [抢占式线程池：WorkStealingPool](#抢占式线程池：workstealingpool)
-    * [线程池实战](#线程池实战)
-    * [Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
-  * [三、Synchronized关键字](#三、synchronized关键字)
-  * [四、Lock&Condition](#四、lockcondition)
-    * [自旋锁](#自旋锁)
-    * [可重入锁/不可重入锁](#可重入锁不可重入锁)
-    * [公平锁/非公平锁](#公平锁非公平锁)
-    * [重入锁ReentrantLock](#重入锁reentrantlock)
-    * [重入锁的好搭档：Condition](#重入锁的好搭档：condition)
-    * [读写锁ReadWriteLock](#读写锁readwritelock)
-  * [五、并发控制工具](#五、并发控制工具)
-    * [CountdownLatch](#countdownlatch)
-    * [Semaphore](#semaphore)
-    * [循环栅栏 CyclicBarrier](#循环栅栏-cyclicbarrier)
-    * [LockSupport阻塞工具](#locksupport阻塞工具)
-    * [ReadLimiter限流](#readlimiter限流)
-  * [六、并发容器](#六、并发容器)
-    * [线程安全的HashMap](#线程安全的hashmap)
-    * [线程安全的list](#线程安全的list)
-    * [CopyOnWriteArrayList](#copyonwritearraylist)
-    * [BlockQueue阻塞队列](#blockqueue阻塞队列)
-    * [SkipList跳表](#skiplist跳表)
-  * [参考书籍](#参考书籍)
-
-
-
+[toc]
 
 
 ```
@@ -610,9 +555,16 @@ ForkJoinPool线程池的分析可见：[Fork/Join(分而治之)线程池框架](
 
 ### Fork/Join(分而治之)线程池框架
 ---
+>Fork/Join线程池框架包含ForkJoinPool线程池，ForkJoinTask任务类。作用是为了实现将大型复杂任务进行递归的分解，直到任务足够小才直接执行，从而递归的返回各个足够小的任务结果汇总成一个大任务的结果，以此类推得到最初提交的那个大型复杂任务的结果。
 
 
 
+ ForkJoinTask有两个子类:
+ - RecursiveTask是有返回值的。
+ - RecursiveAction是没有返回值的。
+
+
+参考：[ForkJoinPool线程池的练习](src/test/java/com/albert/concurrent/book/chapterthree/CountTask_14.java)
 
 ---
 ```
@@ -814,18 +766,153 @@ ReentrantLock fairLock = new ReentrantLock(true);
 
 ### 重入锁的好搭档：Condition
 --- 
+>Condition是和重入锁搭配使用的，类似于wait()和notify()方法。Object.wait()和Object.notify()方法是于synchronized搭配使用的，而Condition是与重入锁搭配使用的。通过lock接口的newCondition()方法即可创建一个与当前锁绑定的Condition对象，利用该对象，就可以实现让线程在合适时机等待或得到通知。
+
+- 主要方法：
+```
+void await() throws InterruptedException;
+
+void awaitUninterruptibly();
+
+boolean await(long time, TimeUnit unit) throws InterruptedException;
+
+boolean awaitUntil(Date deadline) throws InterruptedException;
+
+void signal();
+
+void signalAll();
+```
+- await()方法会使当前线程等待，并释放锁。当其他线程使用signal()方法或者signalAll()方法时，线程会被唤醒并开始竞争锁资源。当线程被中断时，也能跳出等待。
+- awaitUninterruptibly()和await()方法基本一致，区别是在等待过程中不会响应中断。
+- signal()用于唤醒一个在等待中的线程，调用该方法的线程必须拥有锁对象，否则会报异常。
+- signalAll()方法会唤醒所有在等待中的线程。
+
+参考：[Condition的练习](src/test/java/com/albert/concurrent/book/chapterthree/Condition_06.java)
 
 
 ### 读写锁ReadWriteLock
 ---
+>锁可分为排他锁和共享锁。synchronized和ReentrantLock都是排他锁，只允许线程独占资源。而在多个线程进行读操作的时候，单个线程占用资源进行读取，
+其他需要读取的线程会进行等待，而这种等待是不合理的。读写锁ReadWriteLock就是针对读操作和写操作进行的锁优化，具体优化如下。
+
+- 读-读不互斥：并发执行读操作，提高效率。
+- 读-写互斥：读会阻塞写，写也会阻塞读。
+- 写-写互斥：写线程会独占。
+
+读写锁需要注意：
+
+1. 读锁与读锁之间是不互斥的，读锁与写锁之间是互斥的。
+2. 写锁与其它锁都是互斥的。
+3. 保证写锁是独占资源的。
+4. 读线程之间是并发执行的，而写线程执行的时候是独占的。能提高读线程的执行效率。
+
+
+与可重入锁比较：
+- 可重入锁是互斥的。
+- 将读线程和写线程的锁换成可重入锁，之后线程会按照顺序执行，执行效率变慢。
+
+参考：[读写锁的练习和可重入锁做效率对比](src/test/java/com/albert/concurrent/book/chapterthree/ReadWriteLock_08.java)
+
 
 
 --- 
 ## 五、并发控制工具
 
-### CountdownLatch
-### Semaphore
+### 倒计数器CountdownLatch
+---
+
+>CountDownLatch是线程相关的一个计数器，CountDownLatch计数器的操作是原子性的，同时只有一个线程去操作这个计数器，所以同时只能有一个线程能减少这个计数器里面的值。可以通过为CountDownLatch设置初始值，任何对象都可以调用await()方法，直到这个计数器的初始值被其他的线程减到0为止，调用await()方法的线程即可继续执行。
+
+- CountDownLatch 位于java.util.concurrent.CountDownLatch
+
+主要方法：
+
+```
+//指定初始值
+public CountDownLatch(int count);
+//计时器倒数，即计数器减1
+public void countDown();
+//线程休眠，等到计数器countDownLatch为0时唤醒线程，继续执行
+public void await() throws InterruptedException ;
+```
+
+**倒计数器CountDownLatch例子练习：**
+
+例1：老板监督工人练习。
+>有三个工人为老板干活，这个老板会在三个工人全部干完活之后，检查工作。
+
+* 设计Worker类为工人，Boss为老板。
+* 在调用时指定计数器个数，Worker类调用countDown()方法，使计数器减1。Boss类调用await()方法，使Boss线程休眠，等待计数器减少到0时唤醒Boss类。
+* 测试类为CountDownLatchTest，方法为testBossWatchWorker()。
+
+例2：使用CountDownLatch实现多线程按照顺序执行。
+>进行读写操作，读操作必须在写操作完成之后进行。
+
+* 设计Read类为读操作，Write类为写操作。
+* 测试类为CountDownLatchTest，方法为testRead()方法。
+
+
+参考：[CountDownLatch例子练习](src/main/java/com/albert/concurrent/expand/countdownlatch)
+
+### 信号量Semaphore
+---
+>信号量是锁的增强，无论是内部锁synchronized和重入锁ReentrantLock，一次都只是允许一个线程访问一个资源。而信号量可以指定多个线程，同时访问某一个资源。信号量既提供了同步机制，又可以控制同时最大访问的个数。
+
+- Semaphore 位于java.util.concurrent.Semaphore
+
+
+- 构造方法：
+
+```
+//指定同时最大访问个数
+Semaphore semaphore = new Semaphore(5);
+//可以指定同时最大访问个数和是否公平
+Semaphore semaphore = new Semaphore(5, true);
+```
+
+- 公平信号量：
+指的是获得锁的顺序与调用semaphore.acquire()的顺序有关，但不代表百分百获得信号量，仅仅在概率上能得到保证。
+
+- 常用方法：
+```
+//请求获取许可，如果未响应，则线程会等待。直到线程有释放许可或者中断发生。
+public void acquire()
+//和acquire()方法类似，但是不响应中断。
+public void acquireUninterruptibly()
+//尝试获取许可，若成功返回true，获取不成功返回false。不会等待，立即返回。
+public Boolean tryAcquire()
+//尝试在指定时间内获取许可，若成功返回true，获取不成功返回false。超过指定时间则不继续等待，立即返回。
+public Boolean tryAcquire(long timeout, TimeUnit unit)
+//释放一个许可，让其它等待的线程可以访问资源。（可以使信号量的许可总数加1）
+public void release()
+//返回信号量当前可用许可个数
+public int availablePermits()
+```
+
+参考：[信号量Semaphore的练习](src/test/java/com/albert/concurrent/book/chapterthree/Semaphore_07.java)
+
+
+**信号量Semaphore例子练习：**
+
+例1：停车场问题。
+>停车场只有10个车位，现在有30辆车去停车。当车位满时出来一辆车才能有一辆车进入停车。
+
+参考：[停车场问题的练习](src/main/java/com/albert/concurrent/expand/semaphore/ParkingCars.java)
+
+例2：使用信号量Semaphore实现多线程按照顺序执行。
+>产品、开发、测试同时来上班，产品给需求之后，开发才可以开始开发，开发完成之后，测试才可以开始测试。按照产品->开发->测试的顺序执行。
+
+参考：[信号量Semaphore实现多线程按照顺序执行的练习](src/main/java/com/albert/concurrent/expand/semaphore/SemaphoreOrder.java)
+
 ### 循环栅栏 CyclicBarrier
+---
+>CyclicBarrier是一种多线程并发控制工具，可循环利用，作用是让所有线程都等待完成后才会进行下一步行动。
+
+
+
+
+
+
 ### LockSupport阻塞工具
 ### ReadLimiter限流
  
