@@ -908,8 +908,27 @@ public int availablePermits()
 ---
 >CyclicBarrier是一种多线程并发控制工具，可循环利用，作用是让所有线程都等待完成后才会进行下一步行动。
 
+1. 构造方法：
+```
+public CyclicBarrier(int parties)
+public CyclicBarrier(int parties, Runnable barrierAction)
+```
+>- 第一个构造方法可指定参与线程的个数。
+>- 第二种构造方法可以指定当CyclicBarrier完成一次计数之后，需要执行的任务。
 
+2. 重要方法：
+```
+public int await() throws InterruptedException, BrokenBarrierException
+public int await(long timeout, TimeUnit unit) throws InterruptedException, BrokenBarrierException, TimeoutException
+```
+> await()方法，表示线程已经到达栅栏，准备执行。等到约定的线程数都到达之后，即计数完成，开始往下执行。
+若有指定需要在计数完成后指定的任务，则先执行指定的任务。
 
+3. CyclicBarrier和CountDownLatch的区别:
+
+>- CountDownLatch是一次性的，而CyclicBarrier是可循环利用的。
+>- CountDownLatch参与线程的职责是不一样的，await()是在等待倒计时结束，countDown是进行一次倒计时。
+>- CyclicBarrier参与的线程的职责都是在等待计数结束。
 
 
 
