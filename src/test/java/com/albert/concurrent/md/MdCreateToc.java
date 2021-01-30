@@ -12,7 +12,7 @@ public class MdCreateToc {
 
     public static void main(String[] args) {
         TocGen tocGen = AtxMarkdownToc.newInstance()
-                .genTocFile("/Users/yangjunwei/IdeaProjects/concurrent-practice/README.md");
+                .genTocFile("D:\\IdeaWorkSpace\\concurrent-practice\\src\\test\\java\\com\\albert\\concurrent\\md\\READMETest.md");
         System.out.println(tocGen);
     }
 
