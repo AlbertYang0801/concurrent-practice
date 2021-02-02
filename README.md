@@ -1,6 +1,5 @@
 
 
-
 # Java工程师成长计划-高并发学习总结
 ```
          _______________________________________________        
@@ -43,7 +42,10 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
       * [抢占式线程池：WorkStealingPool](#抢占式线程池：workstealingpool)
     * [线程池实战](#线程池实战)
     * [Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
-  * [三、Synchronized关键字](#三、synchronized关键字)
+  * [三、synchronized关键字](#三、synchronized关键字)
+    * [同步代码块](#同步代码块)
+    * [同步方法](#同步方法)
+    * [synchronized和Lock的区别](#synchronized和lock的区别)
   * [四、Lock&Condition](#四、lockcondition)
     * [自旋锁](#自旋锁)
     * [可重入锁/不可重入锁](#可重入锁不可重入锁)
@@ -64,6 +66,7 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [BlockQueue阻塞队列](#blockqueue阻塞队列)
     * [SkipList跳表](#skiplist跳表)
   * [参考书籍](#参考书籍)
+
 
 
 
