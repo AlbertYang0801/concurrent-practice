@@ -25,12 +25,12 @@ public class RateLimiter_11 {
     public static void main(String[] args) {
         for(int i=0;i<50;i++){
             //请求获取许可，若获取不到，则等待（执行所有任务）
-//            rateLimiter.acquire();
+            rateLimiter.acquire();
 
             //尝试获取许可，获取成功返回true，不成功返回false（执行第一个任务）
-            if(!rateLimiter.tryAcquire()){
-                continue;
-            }
+//            if(!rateLimiter.tryAcquire()){
+//                continue;
+//            }
             new Thread(new Task()).start();
         }
     }

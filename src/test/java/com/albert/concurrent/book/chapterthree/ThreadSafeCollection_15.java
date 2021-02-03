@@ -1,12 +1,10 @@
 package com.albert.concurrent.book.chapterthree;
 
+import com.albert.utils.jackson.JsonUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -28,6 +26,12 @@ public class ThreadSafeCollection_15 {
         ArrayList<Object> oldList = Lists.newArrayList();
         //使用Collections对list进行线程同步封装
         List<Object> safeList = Collections.synchronizedList(oldList);
+
+        Vector<Integer> vector = new Vector<>();
+        vector.add(1);
+        vector.add(2);
+
+        System.out.println(JsonUtil.toString(vector));
     }
 
 

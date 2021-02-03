@@ -1,4 +1,4 @@
-package com.albert.concurrent.expand.deadlock;
+package com.albert.concurrent.lock.deadlock;
 
 import lombok.SneakyThrows;
 
