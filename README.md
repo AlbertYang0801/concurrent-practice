@@ -408,7 +408,7 @@ public static class DiscardOldestPolicy implements RejectedExecutionHandler {
 
 ### JDK对线程池的支持
 ---
-![imgae/ThreadPoolExecutor.png](imgae/ThreadPoolExecutor.png)
+![imgae/ThreadPoolExecutor.png](https://cdn.jsdelivr.net/gh/AlbertYang0801/pic-bed@main/img/20210218105938.png)
 
 ThreadPoolExecutor表示一个线程池，里面包含了创建线程池的实现。
 

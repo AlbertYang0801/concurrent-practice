@@ -1,6 +1,4 @@
 
-
-
 # Java工程师成长计划-高并发学习总结
 ```
          _______________________________________________        
@@ -67,6 +65,7 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [BlockQueue阻塞队列](#blockqueue阻塞队列)
     * [SkipList跳表](#skiplist跳表)
   * [参考书籍](#参考书籍)
+
 
 
 
@@ -411,7 +410,7 @@ public static class DiscardOldestPolicy implements RejectedExecutionHandler {
 
 ### JDK对线程池的支持
 ---
-![imgae/ThreadPoolExecutor.png](imgae/ThreadPoolExecutor.png)
+![imgae/ThreadPoolExecutor.png](https://cdn.jsdelivr.net/gh/AlbertYang0801/pic-bed@main/img/20210218105938.png)
 
 ThreadPoolExecutor表示一个线程池，里面包含了创建线程池的实现。
 
