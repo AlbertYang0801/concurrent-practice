@@ -67,9 +67,6 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [SkipList跳表](#skiplist跳表)
   * [参考书籍](#参考书籍)
 
-
-
-
 ```
  __    __   _______  __       __        ______          .___________. __    __  .______       _______     ___       _______  
 |  |  |  | |   ____||  |     |  |      /  __  \         |           ||  |  |  | |   _  \     |   ____|   /   \     |       \ 
@@ -223,6 +220,9 @@ Java中Thread提供了关于线程中断的三个方法：
 - suspend()会阻塞当前线程，但是不会释放锁对象。（不推荐使用）
 - resume()会取消当前线程的阻塞状态。
 
+注意：Thread.suspend()阻塞当前线程时，不会释放锁对象。若不调用resume()方法，或者在suspend()方法调用之前调用了resume()方法，则该线程会一直持有锁对象，进而造成死锁。
+
+
 参考：[suspend()和resume()的相关练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadSuspendAndResume_05.java)
 
 
@@ -266,7 +266,6 @@ Java中Thread提供了关于线程中断的三个方法：
 线程之间抢占资源时，线程优先级越高，机会越大。
 
 参考：[线程优先级的练习](src/test/java/com/albert/concurrent/book/chaptertwo/ThreadPriority_10.java)
-
 
 ---
 
@@ -657,7 +656,12 @@ ForkJoinPool线程池的分析可见：[Fork/Join(分而治之)线程池框架](
 ```
 ---
 
-## 三、Synchronized关键字
+## 三、synchronized关键字
+
+>synchronized关键字的作用是实现线程之间的同步，是一个互斥锁，同时只能有一个线程进入同步块，保证线程间的安全性。synchronized是可重入的，非公平，不可中断的。
+
+
+### 同步代码块
 ---
 >重点是保证多个线程的锁对象是一致的。
 
@@ -741,7 +745,6 @@ synchronized (OBJECT) {
 锁状态 | 无法判断| 可以判断
 锁类型 | 可重入、不可中断、非公平| 可重入、可判断、可指定是否公平
 调度 | 使用Object对象本身的wait、notify、notifyAll调度机制|使用Condition进行线程之间的调度
-
 
 ---
 ## 四、Lock&Condition
@@ -877,6 +880,8 @@ public class ReentrantSpinLock extends SpinLock {
 
 **中断可有效解决线程间的死锁问题，线程限时等待请求锁也可以有效解决死锁问题。**
 
+参考：[使用中断解除死锁的练习](src/main/java/com/albert/concurrent/lock/deadlock/InterruptDeadLock.java)
+
 3. 可实现公平锁。
 ```
 //创建锁对象时，指定为true，即可实现公平锁。
@@ -903,7 +908,7 @@ ReentrantLock fairLock = new ReentrantLock(true);
 - [公平锁的练习](src/test/java/com/albert/concurrent/book/chapterthree/FairLock_05.java)
 
 ### 重入锁的好搭档：Condition
---- 
+---
 >Condition是和重入锁搭配使用的，类似于wait()和notify()方法。Object.wait()和Object.notify()方法是于synchronized搭配使用的，而Condition是与重入锁搭配使用的。通过lock接口的newCondition()方法即可创建一个与当前锁绑定的Condition对象，利用该对象，就可以实现让线程在合适时机等待或得到通知。
 
 - 主要方法：
@@ -953,7 +958,7 @@ void signalAll();
 
 
 
---- 
+---
 ## 五、并发控制工具
 
 ### 倒计数器CountdownLatch
@@ -979,7 +984,7 @@ public void await() throws InterruptedException ;
 例1：老板监督工人练习。
 >有三个工人为老板干活，这个老板会在三个工人全部干完活之后，检查工作。
 
-* 设计Worker类为工人，Boss为老板。
+* 设计Worker类为工人，Boss类为老板类。
 * 在调用时指定计数器个数，Worker类调用countDown()方法，使计数器减1。Boss类调用await()方法，使Boss线程休眠，等待计数器减少到0时唤醒Boss类。
 * 测试类为CountDownLatchTest，方法为testBossWatchWorker()。
 
@@ -1069,15 +1074,102 @@ public int await(long timeout, TimeUnit unit) throws InterruptedException, Broke
 >- CyclicBarrier参与的线程的职责都是在等待计数结束。
 
 
-
 ### LockSupport阻塞工具
+---
+>LockSupport是一个非常方便实用的线程阻塞工具，它可以在线程内任意位置让线程阻塞。不需要获取任何锁，也不会抛出中断异常。
+
+- 阻塞方法
+    - park()：直接阻塞
+    - parkNaors()：限时阻塞
+>LockSupport.park()方法可实现限时等待，还能支持中断响应，但是并不会抛出InterruptedException异常，它只会默默返回。
+
+- 取消阻塞
+    - unpark()：取消线程阻塞状态
+
+
+>与Thread.suspend()方法相比，推荐使用该方法进行线程阻塞。因为Thread.suspend()阻塞当前线程时，可能会产生死锁。而LockSupport内部使用的是类似信号量的机制，每个线程都有一个许可，若许可可用，则park()方法会立即返回消费该许可，将许可变为不可用，对应线程会阻塞。而unpark()方法会使一个许可变为可用，所以即使先调用unpark()方法，park()方法也会顺利执行并结束，而不会造成死锁。
+
+参考：[LockSupport的练习](src/test/java/com/albert/concurrent/book/chapterthree/LockSupport_10.java)
+
+
 ### ReadLimiter限流
- 
+>ReadLimiter是Guava提供的一中限流工具，限流算法有两种：漏桶算法和令牌桶算法，ReadLimiter使用的是令牌桶算法。
+
+- 漏桶算法
+>利用一个缓冲区，当有请求进入系统时，都先在缓存区保存，然后以固定速度流出缓冲区进行处理。
+
+- 令牌桶算法
+>令牌桶算法是一种反向的漏桶算法，在令牌桶算法中，桶中存放的不是请求，而是令牌。处理程序只有在拿到令牌之后，才会对请求进行处理。如果没有令牌，那么处理程序要不等待令牌，要不丢弃请求。为了限流，该算法在每个单位会生成一定量的令牌存入桶中。通常桶的容量是有限的，为了限制流速，该算法在每个单位时间产生一定量的令牌存入桶中，但是令牌总数不会超过桶的容量。比如，若要求程序一秒处理一个请求，那么令牌桶一秒会生成一个令牌。
+
+参考：[ReadLimiter限流工具的练习](src/test/java/com/albert/concurrent/book/chapterthree/RateLimiter_11.java)
+
+
+
 ---
 ## 六、并发容器
 
 ### 线程安全的HashMap
+
+- 使用Collections.synchronizedMap()包装HashMap。
+
+>该方法在Collections类维护了一个SynchronizedMap类，该类有关Map的所有操作都被加上了锁，在执行任何方法之前都要获取锁对象。虽然这个包装的Map实现了线程安全，但是他在多线程的环境并不算太好。无论是读取还是写入操作，都需要先获取锁对象，这样会导致其它操作进入等待状态，效率较低。若并发量不高，可以使用，在并发量高的时候，性能不太好，不推荐使用。
+
+```
+//使用Collections对map进行线程同步封装
+Map<String,String> safeMap = Collections.synchronizedMap(oldMap);
+
+
+//------------源码
+public static <K,V> Map<K,V> synchronizedMap(Map<K,V> m) {
+    return new SynchronizedMap<>(m);
+}
+
+//------------Collects内部的SynchronizedMap类
+private static class SynchronizedMap<K,V> implements Map<K,V>, Serializable {
+        private static final long serialVersionUID = 1978198479659022715L;
+
+        private final Map<K,V> m;     // Backing Map
+        //锁对象mutex
+        final Object      mutex;        // Object on which to synchronize
+
+        ......
+        
+         public int size() {
+            //在执行任何方法之前，都要获取mutex锁对象
+            synchronized (mutex) {return m.size();}
+        }
+
+```
+
+
+
+- ConcurrentHashMap()
+>ConcurrentHashMap位于Java.util.concurrent包内，专门对并发进行了优化，更适合多线程的场合。
+
+
+
+```
+//线程安全的Map
+ConcurrentMap<Object, Object> map = Maps.newConcurrentMap();
+
+```
+
 ### 线程安全的list
+
+- vector
+>在List相关的每个方法上加synchronized关键字保证线程安全。
+
+- 使用Collections.synchronizedList()包装List。
+
+```
+ArrayList<Object> oldList = Lists.newArrayList();
+//使用Collections对list进行线程同步封装
+List<Object> safeList = Collections.synchronizedList(oldList);
+```
+
+
+
+
 ### CopyOnWriteArrayList
 ### BlockQueue阻塞队列
 ### SkipList跳表
