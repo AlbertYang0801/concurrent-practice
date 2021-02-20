@@ -658,8 +658,89 @@ ForkJoinPool线程池的分析可见：[Fork/Join(分而治之)线程池框架](
 ---
 
 ## 三、Synchronized关键字
+---
+>重点是保证多个线程的锁对象是一致的。
 
-[synchronized关键字的练习](src/main/java/com/albert/concurrent/synchronizedprac)
+- this作为锁对象
+
+```
+//this的锁对象指当前类的实例
+synchronized (this) {
+    i++;
+}
+```
+
+- 当前类作为锁对象
+```
+//使用当前类作为锁对象
+synchronized (SynchrodizedCodebolck.class) {
+    x++;
+}
+```
+
+- 不变对象作为锁对象
+```
+static final Object OBJECT = new Object();
+
+//正确使用对象作为锁
+synchronized (OBJECT) {
+    n++;
+}
+```
+参考：[synchronized同步代码块的练习](src/main/java/com/albert/concurrent/synchronizedprac/SynchrodizedCodebolck.java)
+
+
+### 同步方法
+---
+
+>synchronized加在普通方法上或者静态方法上，可实现同步方法。
+
+- 同步普通方法
+>普通同步方法，锁对象为当前类的实例对象等同于this。
+```
+    public synchronized void increaseI() {
+        i++;
+    }
+    
+    等价于
+    
+    public void increase() {
+        synchronized (this) {
+            i++;
+        }
+    }
+```
+
+- 同步静态方法
+
+>静态同步方法，锁对象为当前类对象
+```
+
+    private synchronized static void increaseM() {
+        m++;
+    }
+
+    等价于
+
+    private static void increase() {
+        synchronized (NumberOperatingStatic.class) {
+            m++;
+        }
+    }
+```
+
+
+
+### synchronized和Lock的区别
+---
+ 类别 | synchronized | Lock
+--- |--- |--- |
+存在类型 | Java关键字| 是一个接口
+锁的获取 | 加在方法上，或者同步代码块 | 手动创建
+锁的释放 | 1.获取锁的线程执行完同步代码，释放锁。2.线程执行发生异常，jvm会释放锁。| 需要手动释放，不然会造成死锁。
+锁状态 | 无法判断| 可以判断
+锁类型 | 可重入、不可中断、非公平| 可重入、可判断、可指定是否公平
+调度 | 使用Object对象本身的wait、notify、notifyAll调度机制|使用Condition进行线程之间的调度
 
 
 ---
