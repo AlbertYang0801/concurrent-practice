@@ -76,6 +76,13 @@
             <version>4.1</version>
         </dependency>
 
+        <!--hutool 工具箱-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.4.6</version>
+        </dependency>
+
         <!--MD文件添加目录-->
         <dependency>
             <groupId>com.github.houbb</groupId>
