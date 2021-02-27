@@ -1181,7 +1181,7 @@ List<Object> safeList = Collections.synchronizedList(oldList);
 
 ## 参考书籍
 
-- [实战Java高并发程序设计（第2版）](https://item.jd.com/12458866.html)
+
 
 
 
