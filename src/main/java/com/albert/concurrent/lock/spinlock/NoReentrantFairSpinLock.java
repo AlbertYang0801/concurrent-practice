@@ -2,6 +2,7 @@ package com.albert.concurrent.lock.spinlock;
 
 import lombok.SneakyThrows;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -18,17 +19,22 @@ public class NoReentrantFairSpinLock extends SpinLock {
     /**
      * 线程队列
      */
-    private static BlockingQueue<Thread> blockingQueue = new LinkedBlockingDeque<>();
+    private static BlockingQueue<Thread> blockingQueue = new ArrayBlockingQueue<Thread>(10);
 
     @SneakyThrows
     @Override
     public void lock() {
         Thread thread = Thread.currentThread();
-        System.out.println(thread);
-        blockingQueue.put(thread);
-        //当atomicReference为空时，将当前线程赋值给atomicReference（注意：第一个线程进入，while内条件为false，不会进入循环）
-        while (!atomicReference.compareAndSet(null, blockingQueue.poll())) {
-
+        blockingQueue.add(thread);
+        //自旋
+        while (true){
+            //若变量为null，则代表锁未被持有，将队头元素设置未引用变量。
+            if(atomicReference.compareAndSet(null,blockingQueue.poll())){
+                //若队列不包含当前线程对象，则说明，当前引用对象为当前线程，跳出自旋，获取锁资源。
+                if(!blockingQueue.contains(thread)){
+                    break;
+                }
+            }
         }
     }
 

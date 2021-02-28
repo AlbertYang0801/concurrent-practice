@@ -23,6 +23,10 @@ public class ThreadSafeCollection_15 {
         Map<String, String> safeMap = Collections.synchronizedMap(oldMap);
         safeMap.put(null, "a");
         System.out.println(safeMap);
+        //线程安全的Map
+        Map<String,String> map = new Hashtable<>();
+        map.put("1","1");
+
 
         //***********************包装list***************************
         ArrayList<Object> oldList = Lists.newArrayList();

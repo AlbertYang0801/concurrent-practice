@@ -2,6 +2,7 @@ package com.albert.concurrent.lock.fair;
 
 import com.albert.concurrent.lock.spinlock.SpinLock;
 import com.albert.concurrent.lock.spinlock.SpinLockFactory;
+import com.oracle.tools.packager.Log;
 import lombok.SneakyThrows;
 
 /**
@@ -43,20 +44,17 @@ public class FairSpinLockPractice extends Thread {
 
     @SneakyThrows
     public static void main(String[] args) {
-        FairSpinLockPractice test = new FairSpinLockPractice(1, 5000);
+        FairSpinLockPractice test = new FairSpinLockPractice(1, 1000);
         test.start();
         Thread.sleep(500);
+
+        //在第一个线程执行完成之前，按顺序开启多个线程。若为公平锁，则会按照顺序打印结果。
         FairSpinLockPractice two = new FairSpinLockPractice(2, 100);
-        Thread.sleep(500);
-        FairSpinLockPractice three = new FairSpinLockPractice(3, 100);
-        Thread.sleep(500);
-        FairSpinLockPractice four = new FairSpinLockPractice(4, 100);
-
         two.start();
+        FairSpinLockPractice three = new FairSpinLockPractice(3, 200);
         three.start();
+        FairSpinLockPractice four = new FairSpinLockPractice(4, 300);
         four.start();
-
-
         four.join();
     }
 

@@ -37,7 +37,6 @@ public class ReadWriteLock_08 {
 
     /**
      * 模拟读操作
-     *
      */
     public int handleRead(Lock lock) throws InterruptedException {
         try {
@@ -52,7 +51,6 @@ public class ReadWriteLock_08 {
 
     /**
      * 模拟写操作
-     *
      */
     public void handleWrite(Lock lock, int index) throws InterruptedException {
         try {
@@ -70,29 +68,23 @@ public class ReadWriteLock_08 {
         ReadWriteLock_08 readWriteLock08 = new ReadWriteLock_08();
 
         //读线程（与写线程互斥，与读线程可并行）
-        Runnable readRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //读操作（指定锁为读锁）
-                    int i = readWriteLock08.handleRead(readLock);
-                    System.out.println("读取到的数值为：" + i);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        Runnable readRunnable = () -> {
+            try {
+                //读操作（指定锁为读锁）
+                int i = readWriteLock08.handleRead(readLock);
+                System.out.println("读取到的数值为：" + i);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         };
 
         //写线程（与其它线程互斥）
-        Runnable writeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //写操作（指定锁为写锁）
-                    readWriteLock08.handleWrite(writeLock, new Random().nextInt());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        Runnable writeRunnable = () -> {
+            try {
+                //写操作（指定锁为写锁）
+                readWriteLock08.handleWrite(writeLock, new Random().nextInt());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         };
 
@@ -118,7 +110,7 @@ public class ReadWriteLock_08 {
  * 2.写锁与其它锁都是互斥的。
  * 保证写锁是独占资源的。
  * 读线程之间是并发执行的，而写线程执行的时候是独占的。能提高读线程的执行效率。
- *
+ * <p>
  * 与可重入锁比较：
  * 可重入锁是互斥的。
  * 将读线程和写线程的锁换成可重入锁，之后线程按照顺序执行，执行效率变慢。

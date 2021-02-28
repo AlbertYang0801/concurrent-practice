@@ -1,7 +1,11 @@
 package com.albert.concurrent.book.chapterthree;
 
+import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -38,6 +42,12 @@ public class CopyOnWriteArrayList_16 {
         list.add("1");
         list.add("1");
         list.add("1");
+
+        ArrayList<Integer> oldList = Lists.newArrayList();
+        oldList.add(1);
+        CopyOnWriteArrayList<Integer> newList = new CopyOnWriteArrayList<Integer>(oldList);
+        System.out.println(newList);
+
     }
 
 
@@ -45,5 +55,5 @@ public class CopyOnWriteArrayList_16 {
 
 /**
  * 读操作是不加锁的，而写操作加锁。
- * 实现了读取并行，而写操作是独占的独占的。
+ * 实现了读取并行，而写操作是独占的。
  */
