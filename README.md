@@ -887,6 +887,7 @@ public class ReentrantSpinLock extends SpinLock {
 ReentrantLock fairLock = new ReentrantLock(true);
 ```
 
+
 **主要方法：**
 - lock()方法：获得锁，如果锁已经被占用，则等待。
 - unlock()方法：释放锁。
