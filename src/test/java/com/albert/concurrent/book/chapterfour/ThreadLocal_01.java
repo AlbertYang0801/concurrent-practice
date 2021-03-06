@@ -21,7 +21,7 @@ public class ThreadLocal_01 {
     static ThreadLocal<SimpleDateFormat> threadLocal = new ThreadLocal<>();
 
     /**
-     * 多线程操作同一不安全
+     * 多线程操作变量-不安全
      */
     public static class ParseDate implements Runnable {
 
