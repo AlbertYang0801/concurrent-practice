@@ -2,10 +2,7 @@ package com.albert.concurrent.book.chapterthree;
 
 import lombok.SneakyThrows;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 阻塞队列的练习
@@ -87,7 +84,7 @@ public class BlockQueue_17 {
 
         System.out.println("-----------------------------------");
 
-        LinkedBlockingDeque<Integer> linkedBlockingDeque = new LinkedBlockingDeque<>();
+        LinkedBlockingQueue<Integer> linkedBlockingDeque = new LinkedBlockingQueue<>();
         //测试无界队列
         BlockQueue_17.arrayBlockQueue(linkedBlockingDeque);
     }
