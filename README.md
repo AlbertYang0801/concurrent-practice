@@ -1,4 +1,5 @@
 
+
 # Java工程师成长计划-高并发
 
 ```
@@ -12,46 +13,48 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 ```
 
 * [Java工程师成长计划-高并发](#java工程师成长计划-高并发)
-  * [一、多线程基础](#一、多线程基础)
+  * [一、多线程基础总结](#一、多线程基础总结)
     * [多线程三大特性](#多线程三大特性)
     * [线程创建的三种方式](#线程创建的三种方式)
     * [线程停止](#线程停止)
     * [线程中断](#线程中断)
     * [线程等待(wait)和通知(notify)](#线程等待wait和通知notify)
     * [挂起(suspend)和继续执行(resume)](#挂起suspend和继续执行resume)
-    * [等待线程结束(join)和礼让线程(yeild)](#等待线程结束join和礼让线程yeild)
-    * [volatile关键字](#volatile关键字)
+    * [等待线程结束(join) 和 礼让线程(yeild)](#等待线程结束join-和-礼让线程yeild)
+    * [volatile 关键字](#volatile-关键字)
     * [线程组](#线程组)
     * [守护线程](#守护线程)
     * [线程优先级](#线程优先级)
   * [二、线程池](#二、线程池)
+    * [使用线程池的目的](#使用线程池的目的)
     * [线程池的调度过程](#线程池的调度过程)
-    * [线程池创建时的七个参数](#线程池创建时的七个参数)
+    * [线程池创建时的7个参数](#线程池创建时的7个参数)
+    * [线程池中的任务队列](#线程池中的任务队列)
     * [四种拒绝策略](#四种拒绝策略)
       * [直接抛出异常：AbortPolicy](#直接抛出异常：abortpolicy)
       * [调用当前线程：CallerRunsPolicy](#调用当前线程：callerrunspolicy)
       * [不做处理： DiscardPolicy](#不做处理：-discardpolicy)
       * [删除队列任务： DiscardOldestPolicy](#删除队列任务：-discardoldestpolicy)
     * [JDK对线程池的支持](#jdk对线程池的支持)
-    * [常见线程池](#常见线程池)
       * [缓存型线程池：CachedThreadPool](#缓存型线程池：cachedthreadpool)
       * [定长型线程池： FixedThreadPool](#定长型线程池：-fixedthreadpool)
       * [单线程线程池：SingleThreadExecutor](#单线程线程池：singlethreadexecutor)
       * [定时线程池：ScheduledThreadPool](#定时线程池：scheduledthreadpool)
       * [抢占式线程池：WorkStealingPool](#抢占式线程池：workstealingpool)
-    * [线程池实战](#线程池实战)
-    * [Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
-  * [三、synchronized关键字](#三、synchronized关键字)
-    * [同步代码块](#同步代码块)
-    * [同步方法](#同步方法)
-    * [synchronized和Lock的区别](#synchronized和lock的区别)
+      * [线程池实战](#线程池实战)
+      * [Fork/Join(分而治之)线程池框架](#forkjoin分而治之线程池框架)
+  * [三、synchronized 关键字](#三、synchronized-关键字)
+    * [synchronized 特点](#synchronized-特点)
+    * [同步代码块和同步方法](#同步代码块和同步方法)
+    * [synchronized 和 Lock的区别](#synchronized-和-lock的区别)
   * [四、Lock&Condition](#四、lockcondition)
     * [自旋锁](#自旋锁)
     * [可重入锁/不可重入锁](#可重入锁不可重入锁)
-    * [公平锁/非公平锁](#公平锁非公平锁)
+    * [公平锁和非公平锁](#公平锁和非公平锁)
     * [重入锁ReentrantLock](#重入锁reentrantlock)
     * [重入锁的好搭档：Condition](#重入锁的好搭档：condition)
     * [读写锁ReadWriteLock](#读写锁readwritelock)
+    * [锁优化](#锁优化)
   * [五、并发控制工具](#五、并发控制工具)
     * [倒计数器CountdownLatch](#倒计数器countdownlatch)
     * [信号量Semaphore](#信号量semaphore)
@@ -65,6 +68,8 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     * [BlockQueue阻塞队列](#blockqueue阻塞队列)
     * [SkipList跳表](#skiplist跳表)
   * [参考书籍](#参考书籍)
+
+
 
 ```
  __    __   _______  __       __        ______          .___________. __    __  .______       _______     ___       _______  
