@@ -1845,10 +1845,9 @@ private static class SynchronizedMap<K,V> implements Map<K,V>, Serializable {
 
 
 
-```
+```java
 //线程安全的Map
 ConcurrentMap<Object, Object> map = Maps.newConcurrentMap();
-
 ```
 
 ### 线程安全的list
