@@ -84,5 +84,20 @@ public class CountDownLatchTest {
 
     }
 
+    @Test
+    @SneakyThrows
+    public void testAwait(){
+        CountDownLatch countDownLatch = new CountDownLatch(10);
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        for(int i =0;i<10;i++){
+            Write write = new Write(countDownLatch);
+            executorService.execute(write);
+        }
+        log.info("任务添加完成，开始等待");
+        countDownLatch.await();
+        log.info("执行完成!!");
+        executorService.shutdown();
+    }
+
 
 }
