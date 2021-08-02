@@ -115,6 +115,24 @@ public class ThreadPoolCreateTest {
         }
     }
 
+    @Test
+    public void test123(){
+        ScheduledExecutorService scheduledThreadPool = ThreadPoolCreate.getScheduledThreadPool(3);
+        scheduledThreadPool.scheduleWithFixedDelay(() -> {
+            log.info("每5秒执行一次");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }, 0, 1, TimeUnit.MINUTES);
+        try {
+            Thread.sleep(200000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 测试定时线程池-延时启动
      */
