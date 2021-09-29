@@ -41,6 +41,7 @@ public class ProducerM implements Runnable {
                 //构造任务数据
                 pcData = new PCData(count.incrementAndGet());
                 System.out.println("data put queue : "+pcData.toString());
+                //延时2s向队列放数据
                 if(!queue.offer(pcData,2, TimeUnit.SECONDS)){
                     System.out.println("put data to queue faied："+pcData.toString());
                 }

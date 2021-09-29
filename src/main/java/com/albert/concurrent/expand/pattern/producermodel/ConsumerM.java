@@ -29,6 +29,7 @@ public class ConsumerM implements Runnable {
         try {
             //无限消费
             while (isRunning) {
+                //从队列取数据
                 PCData data = queue.take();
                 if (Objects.isNull(data)) {
                     int value = data.getIntData() * data.getIntData();
