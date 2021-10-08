@@ -31,9 +31,10 @@ public class AskThread implements Runnable {
     public static void main(String[] args) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         new Thread(new AskThread(future)){}.start();
+        //模拟结果的计算过程
         Thread.sleep(3000);
+        //完成之后进行通知
         future.complete(50);
     }
-
 
 }

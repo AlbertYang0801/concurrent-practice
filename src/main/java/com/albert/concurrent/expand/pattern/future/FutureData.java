@@ -10,7 +10,6 @@ public class FutureData implements Data {
 
     private volatile boolean isReady = false;
 
-
     public synchronized void setRealData(RealData realData){
         //无需重复注入
         if(isReady){
