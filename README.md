@@ -11,9 +11,11 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 /__________)                                        (__________\
 ```
 
-![image-20211001010605442](/Users/yangjunwei/Library/Application Support/typora-user-images/image-20211001010605442.png)
+---
 
+![](https://cdn.jsdelivr.net/gh/AlbertYang0801/pic-bed@main/img/20211008164601.png)
 
+---
 
 * [Java工程师成长计划-高并发](#java工程师成长计划-高并发)
   * [一、多线程基础](#一、多线程基础)
