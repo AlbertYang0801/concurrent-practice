@@ -305,14 +305,14 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 
 可按照功能将不同线程进行分组。
 
-参考：[线程组的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chaptertwo/ThreadGroup_08.java)
+[线程组的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chaptertwo/ThreadGroup_08.java)
 
 ---
 ### 守护线程
 
 守护线程是一种特殊的线程，会在所有的用户线程执行完成之后，随之结束。
 
-参考：[守护线程的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chaptertwo/ThreadDaemon_09.java)
+[守护线程的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chaptertwo/ThreadDaemon_09.java)
 
 ---
 ### 线程优先级
@@ -346,7 +346,7 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
     public final static int MAX_PRIORITY = 10;
 ```
 
-参考：[线程优先级的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chaptertwo/ThreadPriority_10.java)
+[线程优先级的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chaptertwo/ThreadPriority_10.java)
 
 ---
 
@@ -451,6 +451,8 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 
 
 
+---
+
 ### volatile 关键字
 
 - `volatile` 变量可保证可见性，但不保证原子性。`volatile` 修饰变量时，会把该线程本地内存中的该变量刷新到主存中。
@@ -463,9 +465,15 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 
 
 
+---
+
 ### final 关键字
 
 
+
+
+
+---
 
 ### synchronized关键字
 
@@ -473,7 +481,7 @@ synchronized 关键字的作用是实现线程之间的同步。是一个互斥�
 
 #### synchronized 特点
 
-- 可重入
+- 可重入（主要解决死锁的问题）
 - 不可中断
 - 非公平
 
@@ -548,40 +556,44 @@ synchronized 加在普通方法上或者静态方法上，可实现同步方法�
 
 **参考链接**
 
-[synchronized同步代码块的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/main/java/com/albert/concurrent/synchronizedprac/SynchrodizedCodebolck.java)
-[synchronized同步方法的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/main/java/com/albert/concurrent/synchronizedprac/SynchrodizedMethod.java)
+- [synchronized同步代码块的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/main/java/com/albert/concurrent/synchronizedprac/SynchrodizedCodebolck.java)
+- [synchronized同步方法的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/main/java/com/albert/concurrent/synchronizedprac/SynchrodizedMethod.java)
 
 ---
 
 #### synchronized怎么实现的线程安全
 
-
-
-
+[synchronized原理](https://albertyang0801.github.io/blog/java/concurrent/single/synchronized原理.html)
 
 #### 锁升级的过程
 
-
+[synchronized锁的优化机制](https://albertyang0801.github.io/blog/java/concurrent/single/synchronized锁的优化机制.html)
 
 ---
 
 ##  三、并发基础
 
+针对并发重要的 AQS 和 CAS 进行总结，还有 Java 提供的原子类总结。
+
+---
+
 ### AQS
 
-可单独开一篇文章
+[AQS总结](https://albertyang0801.github.io/blog/java/concurrent/single/AQS.html)
 
-
+---
 
 ### CAS
 
 [CAS总结](https://albertyang0801.github.io/blog/java/concurrent/single/CAS.html)
 
+---
+
 ### 原子类
 
 [原子类](https://albertyang0801.github.io/blog/java/concurrent/single/原子类.html)
 
-
+---
 
 ## 四、锁
 
