@@ -13,7 +13,7 @@ ________|  | | /| / / ___   / / ____ ___   __ _  ___    |_______
 
 ---
 
-![](https://cdn.jsdelivr.net/gh/AlbertYang0801/pic-bed@main/img/20211008164601.png)
+![高并发](https://cdn.jsdelivr.net/gh/AlbertYang0801/pic-bed@main/img/20211009095427.png)
 
 ---
 
@@ -567,8 +567,6 @@ synchronized 加在普通方法上或者静态方法上，可实现同步方法�
 
 ##  三、并发基础
 
-
-
 ### AQS
 
 可单独开一篇文章
@@ -577,17 +575,11 @@ synchronized 加在普通方法上或者静态方法上，可实现同步方法�
 
 ### CAS
 
-单独开一篇文章
-
-
-
-### Java中的指针-Unsafe类
-
-
+[CAS总结](https://albertyang0801.github.io/blog/java/concurrent/single/CAS.html)
 
 ### 原子类
 
-单独开一篇文章
+[原子类](https://albertyang0801.github.io/blog/java/concurrent/single/原子类.html)
 
 
 
@@ -633,7 +625,7 @@ public class SpinLock {
 
    因为在第一个线程不释放锁的情况下，`atomicReference` 的值为第一个线程值, `atomicReference.compareAndSet(null, thread)` 判断会返回 false。
 
-3. `第一个线程请求 `unlock()` 方法，释放锁资源。
+3. 第一个线程请求 `unlock()` 方法，释放锁资源。
 
    `atomicReference.compareAndSet(thread,null)` 意为若 `atomicReference` 等于当前线程值，则将`atomicReference` 赋值为 null。
 
@@ -803,9 +795,9 @@ public class SpinLock {
     - 优点：不会造成饥饿现象。
     - 缺点：需要维护一个有序队列，实现成本高，性能低下。
 
-注意：synchronized 关键字实现的同步，锁对象是非公平的。
+注意：*synchronized 关键字实现的同步，锁对象是非公平的*。
 
-**实现非公平锁和公平锁**
+**手写实现非公平锁和公平锁**
 
 1. 非公平锁。
 
@@ -952,7 +944,13 @@ public class SpinLockFactory {
 //4 end
 ```
 
----
+
+
+#### 公平锁和非公平锁如何选择？
+
+公平锁和非公平锁的应用场景
+
+
 
 ### 重入锁ReentrantLock
 
@@ -1004,7 +1002,7 @@ public class SpinLockFactory {
 
 ---
 
-#### synchronized 和 Lock的区别
+#### synchronized和Lock的区别
 
 | 类别     | synchronized                                                 | Lock                            |
 | -------- | ------------------------------------------------------------ | ------------------------------- |
@@ -1015,7 +1013,7 @@ public class SpinLockFactory {
 | 锁类型   | 可重入、不可中断、非公平                                     | 可重入、可判断、可指定是否公平  |
 | 调度     | 使用Object对象本身的wait、notify、notifyAll调度机制          | 使用Condition进行线程之间的调度 |
 
-#### synchronized和ReentrantLock如何选择
+#### synchronized和ReentrantLock如何选择？
 
 
 
@@ -1222,6 +1220,8 @@ void signalAll();
 
 [读写锁的练习和可重入锁的效率对比](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chapterthree/ReadWriteLock_08.java)
 
+---
+
 ### 锁优化
 
 加锁之后线程之间竞争必然会导致性能下降，针对锁的使用，可以优化提高性能。
@@ -1377,21 +1377,15 @@ public E take() throws InterruptedException {
 
 ### 内部存储ThreadLocal
 
-单独一篇文章
-
-
+[ThreadLocal总结](https://albertyang0801.github.io/blog/java/concurrent/single/ThreadLocal.html)
 
 ---
 
 ### 倒计数器CountdownLatch
 
-CountDownLatch 是线程相关的一个计数器，CountDownLatch 计数器的操作是原子性的，同时只有一个线程去操作这个计数器，所以同时只能有一个线程能减少这个计数器里面的值。
+`CountDownLatch` 是线程相关的一个倒计数器。位于 `java.util.concurrent.CountDownLatch`。
 
-可以通过为 CountDownLatch 设置初始值，任何对象都可以调用 `await()` 方法，直到这个计数器的初始值被其他的线程减到 0 为止，调用 `await()` 方法的线程即可继续执行。
-
-- CountDownLatch 位于 `java.util.concurrent.CountDownLatch`
-
-**主要方法**
+#### 主要方法
 
 ```java
 //指定初始值
@@ -1402,34 +1396,284 @@ public void countDown();
 public void await() throws InterruptedException ;
 ```
 
-**倒计数器CountDownLatch例子练习：**
+在创建的时候，可以为 `CountDownLatch` 设置初始值 `n`，线程可进行倒数操作 `countDown()` 和等待操作 `await()`。
 
-1. 老板监督工人练习。
+`CountDownLatch` 计数器的操作是原子性的，同时只能有一个线程去操作这个计数器，所以同时只能有一个线程能减少这个计数器里面的值。任何线程都可以调用对应的 `await()` 方法，直到这个计数器的初始值被其他的线程减到 0 为止，调用 `await()` 方法的线程即可继续执行。
 
-   > 有三个工人为老板干活，这个老板会在三个工人全部干完活之后，检查工作。
+#### 参考练习
 
-    - 设计Worker类为工人，Boss类为老板类。
-    - 在调用时指定计数器个数，Worker类调用countDown()方法，使计数器减1。Boss类调用await()方法，使Boss线程休眠，等待计数器减少到0时唤醒Boss类。
-    - 测试类为 CountDownLatchTest，方法为 `testBossWatchWorker()`。
+[CountDownLatch例子代码地址](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/main/java/com/albert/concurrent/expand/countdownlatch)
 
-2. 使用CountDownLatch实现多线程按照顺序执行。
+**例1：老板监督工人练习。**
 
-   > 进行读写操作，读操作必须在写操作完成之后进行。
+>有三个工人为老板干活，这个老板会在三个工人全部干完活之后，检查工作。
 
-    - 设计Read类为读操作，Write类为写操作。
-    - 测试类为CountDownLatchTest，方法为 `testRead()` 方法。
+* 设计 `Worker` 类为工人。
 
-[CountDownLatch例子练习](src/main/java/com/albert/concurrent/expand/countdownlatch)
+  ```java
+  @Slf4j
+  public class Worker implements Runnable {
+  
+      private CountDownLatch countDownLatch;
+      private String workerName;
+  
+      public Worker(CountDownLatch countDownLatch, String workerName) {
+          this.countDownLatch = countDownLatch;
+          this.workerName = workerName;
+      }
+  
+      @Override
+      public void run() {
+          //开始工作
+          this.doWorker();
+          //计时器倒数，即计数器减1
+          this.countDownLatch.countDown();
+      }
+  
+      private void doWorker(){
+          log.info(this.workerName+"工人开始工作");
+          //当前线程休眠5秒, 即工人工作5秒
+          try {
+              TimeUnit.SECONDS.sleep(new Random().nextInt(3));
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          log.info(this.workerName+"工人工作结束！");
+      }
+  
+  
+  }
+  ```
+
+* 设计 `Boss` 类为老板。
+
+  ```java
+  public class Boss implements Runnable{
+  
+      private CountDownLatch countDownLatch;
+  
+      public Boss(CountDownLatch countDownLatch) {
+          this.countDownLatch = countDownLatch;
+      }
+  
+      @Override
+      public void run() {
+          log.info("老板等待所有工人完成工作，准备视察工作");
+          try {
+              //线程休眠，等到计数器countDownLatch为0时唤醒线程，继续执行
+              this.countDownLatch.await();
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          log.info("工人工作都做完了，老板开始视察工作！");
+      }
+  
+  
+  }
+  ```
+
+* 在调用时指定计数器个数，`Worker` 类调用 `countDown()` 方法，使计数器减 1。`Boss` 类调用 `await()` 方法，使 `Boss` 线程休眠，等待计数器减少到 0 时唤醒 `Boss` 类。
+
+  ```java
+  		/**
+       * 测试老板检查工人工作的例子
+       */
+      @Test
+      public void testBossWatchWorker() {
+  
+          //创建自定义线程工厂
+          ThreadFactory myThreadFactory = new ThreadFactoryBuilder().setNameFormat("albert-pool-%d").build();
+  
+          //使用线程池的构造函数进行创建线程池
+          ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(3,10,
+                  0L,TimeUnit.MILLISECONDS,new LinkedBlockingDeque<Runnable>(),
+                  myThreadFactory,new ThreadPoolExecutor.DiscardPolicy());
+  
+          //创建一个为3的计时器
+          CountDownLatch countDownLatch = new CountDownLatch(3);
+  
+          //创建Boss线程对象
+          Boss boss = new Boss(countDownLatch);
+  
+          //创建3个工人线程对象
+          Worker workerA = new Worker(countDownLatch, "孙圆圆");
+          Worker workerB = new Worker(countDownLatch, "艾伯特");
+          Worker workerC = new Worker(countDownLatch, "杨依惠");
+  
+          //线程添加到线程池中执行
+          threadPoolExecutor.execute(workerA);
+          threadPoolExecutor.execute(workerB);
+          threadPoolExecutor.execute(workerC);
+          threadPoolExecutor.execute(boss);
+  
+          try {
+              //线程休眠，休眠结束关闭线程池
+              TimeUnit.SECONDS.sleep(8);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+  
+          //关闭线程池
+          threadPoolExecutor.shutdown();
+  
+      }
+  ```
+
+  
+
+**例2：使用 `CountDownLatch` 实现多线程之间按照顺序执行。**
+
+>进行读写操作，读操作必须在写操作完成之后进行。
+
+* 设计 `Read` 类为读操作。
+
+  ```java
+  public class Read implements Runnable{
+  
+      private CountDownLatch countDownLatch;
+  
+      public Read(CountDownLatch countDownLatch) {
+          this.countDownLatch = countDownLatch;
+      }
+  
+      @SneakyThrows
+      @Override
+      public void run() {
+          log.info("用户准备读取文件");
+          this.countDownLatch.await();
+          log.info("用户读取文件成功！");
+      }
+  
+  }
+  ```
+
+* 设计 `Write` 类为写操作。
+
+  ```java
+  public class Write implements Runnable {
+  
+      private final CountDownLatch countDownLatch;
+  
+      public Write(CountDownLatch countDownLatch) {
+          this.countDownLatch = countDownLatch;
+      }
+  
+      @SneakyThrows
+      @Override
+      public void run() {
+          log.info("用户开始写入");
+          //线程休眠，模拟写操作
+          TimeUnit.SECONDS.sleep(new Random().nextInt(2));
+          log.info("用户写入完成");
+          this.countDownLatch.countDown();
+      }
+  
+  
+  }
+  ```
+
+* 测试读写操作，读操作必须在写操作之后。
+
+  ```java
+  		@SneakyThrows
+      @Test
+      public void testRead(){
+          //创建线程池
+          ExecutorService executorService = Executors.newCachedThreadPool();
+  
+          //创建计数器
+          CountDownLatch countDownLatch = new CountDownLatch(1);
+  
+          Write write = new Write(countDownLatch);
+          Read read = new Read(countDownLatch);
+  
+          executorService.execute(write);
+          executorService.execute(read);
+  
+          //休眠5秒
+          TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+          //关闭线程池
+          executorService.shutdown();
+  
+      }
+  ```
+
+  
+
+**例3：LeetCode-1114**
+
+ [1114. 按序打印](https://leetcode-cn.com/problems/print-in-order/)
+
+
+> 使三个线程按照顺序调用。
+
+- 题解
+
+  ```java
+  public class PrintFooCountDownLatch {
+  
+        private CountDownLatch secondCountDownLatch = new CountDownLatch(1);
+  
+        private CountDownLatch thirdCountDownLatch = new CountDownLatch(1);
+  
+        public PrintFooCountDownLatch() {
+  
+        }
+  
+        public void one() {
+            log.info("one");
+            System.out.println("one");
+        }
+  
+        public void two() {
+            log.info("two");
+            System.out.println("two");
+        }
+  
+        public void three() {
+            log.info("three");
+            System.out.println("three");
+        }
+  
+        public void first(Runnable printFirst) throws InterruptedException {
+            // printFirst.run() outputs "first". Do not change or remove this line.
+            printFirst.run();
+            secondCountDownLatch.countDown();
+        }
+  
+        public void second(Runnable printSecond) throws InterruptedException {
+            secondCountDownLatch.await();
+            // printSecond.run() outputs "second". Do not change or remove this line.
+            printSecond.run();
+            thirdCountDownLatch.countDown();
+        }
+  
+        public void third(Runnable printThird) throws InterruptedException {
+            // printThird.run() outputs "third". Do not change or remove this line.
+            thirdCountDownLatch.await();
+            printThird.run();
+        }
+  
+  
+    }
+  ```
+
+
+
+
+
+
+
+
+
 
 ---
 
 ### 信号量Semaphore
 
-信号量是锁的增强，无论是内部锁 synchronized 和重入锁 ReentrantLock，一次都只是允许一个线程访问一个资源。而信号量可以指定多个线程，同时访问某一个资源。信号量既提供了同步机制，又可以控制同时最大访问的个数。
+信号量是锁的增强，位于 `java.util.concurrent.Semaphore`。无论是内部锁 `synchronized` 和重入锁 `ReentrantLock`，一次都只是允许一个线程访问一个资源。而信号量可以指定多个线程，同时访问某一个资源。信号量既提供了同步机制，又可以控制同时最大访问的个数。
 
-- Semaphore 位于 `java.util.concurrent.Semaphore`
-
-**构造方法**
+#### 构造方法
 
 ```java
 //指定同时最大访问个数
@@ -1438,9 +1682,9 @@ Semaphore semaphore = new Semaphore(5);
 Semaphore semaphore = new Semaphore(5, true);
 ```
 
-*信号量的公平指的是获得锁的顺序与调用 `semaphore.acquire()` 的顺序有关，但不代表百分百获得信号量，仅仅在概率上能得到保证。*
-
-**常用方法**
+- 公平信号量：
+指的是获得锁的顺序与调用 `semaphore.acquire()` 的顺序有关，但不代表百分百获得信号量，仅仅在概率上能得到保证。
+#### 常用方法
 
 ```java
 //请求获取许可，如果未响应，则线程会等待。直到线程有释放许可或者中断发生。
@@ -1457,97 +1701,251 @@ public void release()
 public int availablePermits()
 ```
 
-参考：[信号量Semaphore的练习](src/test/java/com/albert/concurrent/book/chapterthree/Semaphore_07.java)
+#### 参考练习
 
-**信号量Semaphore例子练习：**
+​	[信号量 Semaphore 的练习代码](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/test/java/com/albert/concurrent/book/chapterthree/Semaphore_07.java)
 
-1. 停车场问题。
+- 例 1：停车场问题。
 
-   > 停车场只有10个车位，现在有30辆车去停车。当车位满时出来一辆车才能有一辆车进入停车。
+>停车场只有10个车位，现在有30辆车去停车。当车位满时出来一辆车才能有一辆车进入停车。
 
-   [停车场问题的练习](src/main/java/com/albert/concurrent/expand/semaphore/ParkingCars.java)
+​		[停车场问题的练习](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/main/java/com/albert/concurrent/expand/semaphore/ParkingCars.java)
 
-2. 使用信号量Semaphore实现多线程按照顺序执行。
+- 例 2：使用信号量 `Semaphore` 实现多线程按照顺序执行。
 
-   >  产品、开发、测试同时来上班，产品给需求之后，开发才可以开始开发，开发完成之后，测试才可以开始测试。按照产品->开发->测试的顺序执行。
+>产品、开发、测试同时来上班，产品给需求之后，开发才可以开始开发，开发完成之后，测试才可以开始测试。按照产品->开发->测试的顺序执行。
 
-   [信号量Semaphore实现多线程按照顺序执行的练习](src/main/java/com/albert/concurrent/expand/semaphore/SemaphoreOrder.java)
+​	[信号量 Semaphore 实现多线程按照顺序执行的练习](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/main/java/com/albert/concurrent/expand/semaphore/SemaphoreOrder.java)
+
+- 例 3：LeetCode题目 
+
+  [1114. 按序打印](https://leetcode-cn.com/problems/print-in-order/)
+
+```java
+public class PrintFooSemaphore {
+
+    private Semaphore one = new Semaphore(0);
+
+    private Semaphore two = new Semaphore(0);
+
+    public PrintFooSemaphore() {
+
+    }
+
+    public void one() {
+        log.info("one");
+        System.out.println("one");
+    }
+
+    public void two() {
+        log.info("two");
+        System.out.println("two");
+    }
+
+    public void three() {
+        log.info("three");
+        System.out.println("three");
+    }
+
+    public void first(Runnable printFirst) throws InterruptedException {
+        // printFirst.run() outputs "first". Do not change or remove this line.
+        printFirst.run();
+        one.release();
+    }
+
+    public void second(Runnable printSecond) throws InterruptedException {
+        one.acquire();
+        // printSecond.run() outputs "second". Do not change or remove this line.
+        printSecond.run();
+        two.release();
+        one.release();
+    }
+
+    public void third(Runnable printThird) throws InterruptedException {
+        // printThird.run() outputs "third". Do not change or remove this line.
+        two.acquire();
+        printThird.run();
+        two.release();
+    }
+
+```
+
+
+
+
+
+
 
 ---
 
 ### 循环栅栏 CyclicBarrier
 
-CyclicBarrier 是一种多线程并发控制工具，可循环利用，作用是让所有线程都等待完成后才会进行下一步行动。
+`CyclicBarrier` 是一种多线程并发控制工具，可循环利用，作用是让所有线程都等待完成后才会进行下一步行动。
 
-**构造方法**
+#### 构造方法
 
 ```java
 public CyclicBarrier(int parties)
 public CyclicBarrier(int parties, Runnable barrierAction)
 ```
-
 - 第一个构造方法可指定参与线程的个数。
 
-- 第二种构造方法可以指定当CyclicBarrier完成一次计数之后，需要执行的任务。
+- 第二种构造方法可以指定当 `CyclicBarrier` 完成一次计数之后，需要执行的任务。
 
-**重要方法**
+#### 重要方法
 
 ```java
+//到达栅栏，等待
 public int await() throws InterruptedException, BrokenBarrierException
+//设置等待的超时事件
 public int await(long timeout, TimeUnit unit) throws InterruptedException, BrokenBarrierException, TimeoutException
 ```
+`await()` 方法，表示线程已经到达栅栏，准备执行。等到约定的线程数都到达之后，即计数完成，开始往下执行。
+若有指定需要在计数完成后指定的任务，则先执行指定的任务。
 
-`await()` 方法，表示线程已经到达栅栏，准备执行。等到约定的线程数都到达之后，即计数完成，开始往下执行。若有指定需要在计数完成后指定的任务，则先执行指定的任务。
+#### CyclicBarrier 和 CountDownLatch 的区别
 
-**CyclicBarrier和CountDownLatch的区别**
+- `CountDownLatch` 是一次性的，而 `CyclicBarrier` 是可循环利用的。
+- `CountDownLatch` 参与线程的职责是不一样的，`await()` 是在等待倒计时结束，`countDown()` 是进行一次倒计时。
 
-- CountDownLatch是一次性的，而CyclicBarrier是可循环利用的。
-- CountDownLatch参与线程的职责是不一样的，await()是在等待倒计时结束，countDown是进行一次倒计时。
-- CyclicBarrier参与的线程的职责都是在等待计数结束。
+- `CyclicBarrier` 参与的线程的职责都是在等待计数结束。
+
+#### 参考练习
+
+[循环栅栏并发控制工具 CyclicBarrier 的练习](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/test/java/com/albert/concurrent/book/chapterthree/CyclicBarrier_09.java)
+
+
 
 ---
 
 
 ### LockSupport阻塞工具
 
-LockSupport 是一个非常方便实用的线程阻塞工具，它可以在线程内任意位置让线程阻塞。不需要获取任何锁，也不会抛出中断异常。
+`LockSupport` 是一个非常方便实用的线程阻塞工具，它可以在线程内任意位置让线程阻塞。不需要获取任何锁，也不会抛出中断异常。
 
-**阻塞方法**
+#### 常用方法
 
-- park()：直接阻塞
-- parkNaors()：限时阻塞
+- 阻塞方法
+  - `park()` ：直接阻塞
+  - `parkNaors()` ：限时阻塞
 
-*`LockSupport.park()` 方法可实现限时等待，还能支持中断响应，但是并不会抛出 InterruptedException 异常，它只会默默返回。*
+`LockSupport.park()` 方法可实现限时等待，还能支持中断响应，但是并不会抛出 `InterruptedException` 异常，它只会默默返回。
 
-**取消阻塞**
+- 取消阻塞
+  - `unpark()` ：取消线程阻塞状态
 
-- unpark()：取消线程阻塞状态
+**总结**
+
+与 `Thread.suspend()` 方法相比，推荐使用该方法进行线程阻塞。因为 `Thread.suspend()` 阻塞当前线程时，可能会产生死锁。
+
+而 `LockSupport` 内部使用的是类似信号量的机制，每个线程都有一个许可，若许可可用，则  `park()` 方法会立即返回消费该许可，将许可变为不可用，对应线程会阻塞。而 `unpark()` 方法会使一个许可变为可用，所以即使先调用 `unpark()` 方法， `park()`方法也会顺利执行并结束，而不会造成死锁。
+
+#### 源码中的应用
+
+1. `FutureTask` 的 `get()` 方法
+
+   `FutureTask` 的 `get()` 方法在获取结果时，若结果未完成计算，就会阻塞等待，实现阻塞使用的就是 `LockSupport`。
+
+   ```java
+   public class FutureTask<V> implements RunnableFuture<V> {
+     	//构造方法Callable
+       public FutureTask(Callable<V> callable) {
+           if (callable == null)
+               throw new NullPointerException();
+           this.callable = callable;
+           this.state = NEW;       // ensure visibility of callable
+       }
+     	//构造方法Runnable
+       public FutureTask(Runnable runnable, V result) {
+           this.callable = Executors.callable(runnable, result);
+           this.state = NEW;       // ensure visibility of callable
+       }
+     
+     	//get()方法阻塞
+       public V get() throws InterruptedException, ExecutionException {
+           int s = state;
+           if (s <= COMPLETING)
+             	//阻塞等待
+               s = awaitDone(false, 0L);
+           return report(s);
+       }
+     
+     	//阻塞的方法
+     	private int awaitDone(boolean timed, long nanos)
+           throws InterruptedException {
+           final long deadline = timed ? System.nanoTime() + nanos : 0L;
+           WaitNode q = null;
+           boolean queued = false;
+         	//自旋
+           for (;;) {
+               if (Thread.interrupted()) {
+                   removeWaiter(q);
+                   throw new InterruptedException();
+               }
+   
+               int s = state;
+               if (s > COMPLETING) {
+                   if (q != null)
+                       q.thread = null;
+                   return s;
+               }
+               else if (s == COMPLETING) // cannot time out yet
+                 	//让出线程资源
+                   Thread.yield();
+               else if (q == null)
+                   q = new WaitNode();
+               else if (!queued)
+                 	//CAS
+                   queued = UNSAFE.compareAndSwapObject(this, waitersOffset,
+                                                        q.next = waiters, q);
+               else if (timed) {
+                   nanos = deadline - System.nanoTime();
+                   if (nanos <= 0L) {
+                       removeWaiter(q);
+                       return state;
+                   }
+                 	//阻塞工具LockSupport，实现限时阻塞
+                   LockSupport.parkNanos(this, nanos);
+               }
+               else
+                 	//直接阻塞
+                   LockSupport.park(this);
+           }
+       }
+     
+     
+   }
+   ```
 
 
->与 `Thread.suspend()` 方法相比，推荐使用该方法进行线程阻塞。因为 `Thread.suspend()` 阻塞当前线程时，可能会产生死锁。而 LockSupport 内部使用的是类似信号量的机制，每个线程都有一个许可，若许可可用，则 `park()` 方法会立即返回消费该许可，将许可变为不可用，对应线程会阻塞。而 `unpark()` 方法会使一个许可变为可用，所以即使先调用`unpark()` 方法，`park()` 方法也会顺利执行并结束，而不会造成死锁。
+#### 参考练习
 
-[LockSupport的练习](src/test/java/com/albert/concurrent/book/chapterthree/LockSupport_10.java)
+[LockSupport的简单练习](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/test/java/com/albert/concurrent/book/chapterthree/LockSupport_10.java)
+
+
 
 ---
 
 
 ### ReadLimiter限流
 
-ReadLimiter是 Guava 提供的一中限流工具，限流算法有两种：漏桶算法和令牌桶算法，ReadLimiter 使用的是令牌桶算法。
+`ReadLimiter` 是 `Guava` 提供的一中限流工具，限流算法有两种：漏桶算法和令牌桶算法。`ReadLimiter` 使用的是令牌桶算法。
+
+#### 限流算法
 
 - 漏桶算法
-
 >利用一个缓冲区，当有请求进入系统时，都先在缓存区保存，然后以固定速度流出缓冲区进行处理。
 
 - 令牌桶算法
-
 >令牌桶算法是一种反向的漏桶算法，在令牌桶算法中，桶中存放的不是请求，而是令牌。处理程序只有在拿到令牌之后，才会对请求进行处理。如果没有令牌，那么处理程序要不等待令牌，要不丢弃请求。为了限流，该算法在每个单位会生成一定量的令牌存入桶中。通常桶的容量是有限的，为了限制流速，该算法在每个单位时间产生一定量的令牌存入桶中，但是令牌总数不会超过桶的容量。比如，若要求程序一秒处理一个请求，那么令牌桶一秒会生成一个令牌。
 
-参考：[ReadLimiter限流工具的练习](src/test/java/com/albert/concurrent/book/chapterthree/RateLimiter_11.java)
+#### 参考练习
+
+[ReadLimiter限流工具的练习](https://gitee.com/zztiyjw/concurrent-practice/blob/master/src/test/java/com/albert/concurrent/book/chapterthree/RateLimiter_11.java)
+
+
 
 ---
-
-
 
 ## 六、线程池
 
@@ -1562,10 +1960,46 @@ ReadLimiter是 Guava 提供的一中限流工具，限流算法有两种：漏�
 ### 线程池的状态
 
 
+线程池总共有 5 种状态。
+
+![线程池状态.png](https://cdn.jsdelivr.net/gh/AlbertYang0801/pic-bed@main/img/20210710230037.png)
+
+- RUNNING 
+
+  线程池创建之后的初始状态，该状态下可正常执行任务。
+
+- SHUTDOWN
+
+  该状态下线程池不再接受新任务，但是会等待任务队列中的任务执行结束。
+
+- STOP
+
+  该状态下线程池不再接受新任务，也不会处理任务队列中的任务，并会将所有存货的线程中断。
+
+- TIDYING
+
+  该状态下所有任务都以终止，并将执行 `terminated` 的钩子方法。
+
+- TERMINATED
+
+  执行完 `terminated` 的钩子方法之后。
+
+**源码中的体现**
+
+```java
+    // runState is stored in the high-order bits
+    private static final int RUNNING    = -1 << COUNT_BITS;
+    private static final int SHUTDOWN   =  0 << COUNT_BITS;
+    private static final int STOP       =  1 << COUNT_BITS;
+    private static final int TIDYING    =  2 << COUNT_BITS;
+    private static final int TERMINATED =  3 << COUNT_BITS;
+```
+
+
 
 ### 线程池的7个参数
 
-```
+```java
 public ThreadPoolExecutor(int corePoolSize,
                               int maximumPoolSize,
                               long keepAliveTime,
@@ -1637,7 +2071,7 @@ public ThreadPoolExecutor(int corePoolSize,
 
 默认的任务拒绝策略，对于新增任务，拒绝处理，直接抛出 `RejectedExecutionException` 异常。
 
-```
+```java
 public static class AbortPolicy implements RejectedExecutionHandler {
     
     public AbortPolicy() { }
@@ -1655,7 +2089,7 @@ public static class AbortPolicy implements RejectedExecutionHandler {
 
 调用自己的线程来执行任务，不创建新的线程，而是用自己当前线程进行执行，会降低对于新任务的提交速度，影响整体性能。如果程序能够容许延时，并且不能丢弃每一个任务，即可采取这个策略。
 
-```
+```java
 public static class CallerRunsPolicy implements RejectedExecutionHandler {
     public CallerRunsPolicy() { }
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
@@ -1671,7 +2105,7 @@ public static class CallerRunsPolicy implements RejectedExecutionHandler {
 
 不做任何处理，直接丢掉该任务.
 
-```
+```java
 public static class DiscardPolicy implements RejectedExecutionHandler {
    
     public DiscardPolicy() { }
@@ -1686,7 +2120,7 @@ public static class DiscardPolicy implements RejectedExecutionHandler {
 删除任务队列中最早的任务，将新增任务添加到任务队列中。
 
 
-```
+```java
 public static class DiscardOldestPolicy implements RejectedExecutionHandler {
    
     public DiscardOldestPolicy() { }
@@ -1705,13 +2139,17 @@ public static class DiscardOldestPolicy implements RejectedExecutionHandler {
 
 ### 线程池的执行流程
 
-单独一篇文章
-
-
+[线程池的执行流程](https://albertyang0801.github.io/blog/java/concurrent/single/线程池的执行流程.html)
 
 #### submit和execute的区别？
 
+`submit` 和 `execute` 都是提交任务到线程池中。
 
+
+
+### 线程池的关闭
+
+[线程池的关闭](https://albertyang0801.github.io/blog/java/concurrent/single/线程池的关闭.html)
 
 
 
@@ -1723,7 +2161,7 @@ Java 从 `JDK1.5` 开始提供了线程池的四种类型：分别为`CachedThre
 
 注意：由于 `Executors` 线程池工厂创建出的线程存在一定弊端（具体见各个线程池的分析）,推荐使用手动创建的方式来创建线程池。（出自阿里规约）
 
-[线程池和Future的组合练习](src/test/java/com/albert/concurrent/threadpool/ThreadPoolCallable.java)
+[线程池和Future的组合练习](https://gitee.com/zztiyjw/concurrent-practice/tree/master/src/test/java/com/albert/concurrent/threadpool/ThreadPoolCallable.java)
 
 ---
 
@@ -1972,15 +2410,51 @@ ForkJoinTask有两个子类:
 
 ### 线程安全的HashMap
 
-#### Collections包装
+#### Hashtable
 
-使用 `Collections.synchroniedMap()` 包装 HashMap。
-
-该方法在 Collections 类维护了一个 SynchronizedMap 类，该类有关 Map 的所有操作都被加上了锁，在执行任何方法之前都要获取锁对象。虽然这个包装的 Map 实现了线程安全，但是他在多线程的环境并不算太好。无论是读取还是写入操作，都需要先获取锁对象，这样会导致其它操作进入等待状态，效率较低。若并发量不高，可以使用，在并发量高的时候，性能不太好，不推荐使用。
+采用`synchronized`在方法级别加锁，效率低。
 
 ```java
+public synchronized V put(K key, V value) {
+        // Make sure the value is not null
+        if (value == null) {
+            throw new NullPointerException();
+        }
+
+        // Makes sure the key is not already in the hashtable.
+        Entry<?,?> tab[] = table;
+        int hash = key.hashCode();
+        int index = (hash & 0x7FFFFFFF) % tab.length;
+        @SuppressWarnings("unchecked")
+        Entry<K,V> entry = (Entry<K,V>)tab[index];
+        for(; entry != null ; entry = entry.next) {
+            if ((entry.hash == hash) && entry.key.equals(key)) {
+                V old = entry.value;
+                entry.value = value;
+                return old;
+            }
+        }
+
+        addEntry(hash, key, value, index);
+        return null;
+    }
+```
+
+
+
+#### Collections包装HashMap
+
+`Collections`类维护了一个`SynchronizedMap`类，该类把有关`Map`的所有操作都被加上了锁，在执行任何方法之前都要获取锁对象`mutex`，实现了线程安全。
+
+```java
+Map<String, String> oldMap = Maps.newHashMap();
 //使用Collections对map进行线程同步封装
 Map<String,String> safeMap = Collections.synchronizedMap(oldMap);
+```
+
+虽然这个包装的`Map`实现了线程安全，但是在多线程的环境并不算太好。无论是读取还是写入操作，都需要先获取锁对象，这样会导致其它操作进入等待状态，效率较低。若并发量不高，可以使用，在并发量高的时候，性能不太好，`不推荐使用`。
+
+```java
 
 
 //------------源码
@@ -1994,7 +2468,7 @@ private static class SynchronizedMap<K,V> implements Map<K,V>, Serializable {
 
         private final Map<K,V> m;     // Backing Map
         //锁对象mutex
-        final Object      mutex;        // Object on which to synchronize
+        final Object  mutex;        // Object on which to synchronize
 
         ......
         
@@ -2002,51 +2476,387 @@ private static class SynchronizedMap<K,V> implements Map<K,V>, Serializable {
             //在执行任何方法之前，都要获取mutex锁对象
             synchronized (mutex) {return m.size();}
         }
-
+        public boolean isEmpty() {
+            synchronized (mutex) {return m.isEmpty();}
+        }
+        public boolean containsKey(Object key) {
+            synchronized (mutex) {return m.containsKey(key);}
+        }
+        public boolean containsValue(Object value) {
+            synchronized (mutex) {return m.containsValue(value);}
+        }
+  
+  			......
+          
+		}
 ```
-
 
 
 #### ConcurrentHashMap
 
 ConcurrentHashMap 位于 `java.util.concurrent` 包内，专门对并发进行了优化，更适合多线程的场合。
 
+[ConcurrentHashMap原理分析](https://albertyang0801.github.io/blog/java/collection/ConcurrentHashMap1.7.html)
+
 ```java
 //线程安全的Map
 ConcurrentMap<Object, Object> map = Maps.newConcurrentMap();
 ```
 
+要特别注意，ConcurrentHashMap 中的 key 或者 value 为 null 时会直接抛出空指针异常，在源码中有所体现。
+
+```java
+ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
+    implements ConcurrentMap<K,V>, Serializable {
+    private static final long serialVersionUID = 7249069246763182397L;
+   
+		/** Implementation for put and putIfAbsent */
+    final V putVal(K key, V value, boolean onlyIfAbsent) {
+        if (key == null || value == null) throw new NullPointerException();
+       
+       ......
+       
+    }
+   
+   	......
+ 
+ }
+```
+
+这里记录一下 JDK1.8 之后 ConcurrentHashMap 新增的一些方法。JDK 1.8 之后新增了一些支持 lambda表达式的方法。
+
+- `foreach()`
+
+  ```java
+      @Test
+      public void testForeach() {
+          ConcurrentHashMap<String, Integer> concurrentHashMap = new ConcurrentHashMap<>();
+          for (int i = 0; i < 5; i++) {
+              concurrentHashMap.put(Integer.toString(i), i);
+          }
+          concurrentHashMap.forEach((k, v) -> {
+              System.out.println("K:" + k + ";V:" + v);
+          });
+      }
+  ```
+
+- `reduce`
+
+  `reduce()` 方法可以对 `ConcurrentHashMap` 内部元素进行计算。
+
+  - parallelismThreshold：并行数
+  - transformer：该函数是计算元素（K，V）的结果。
+  - reducer：该函数是各个元素计算结果之间的元素规则（加减乘除）。
+
+  ```java
+      public <U> U reduce(long parallelismThreshold,
+                          BiFunction<? super K, ? super V, ? extends U> transformer,
+                          BiFunction<? super U, ? super U, ? extends U> reducer) {
+          if (transformer == null || reducer == null)
+              throw new NullPointerException();
+          return new MapReduceMappingsTask<K,V,U>
+              (null, batchFor(parallelismThreshold), 0, 0, table,
+               null, transformer, reducer).invoke();
+      }
+  ```
+
+  练习代码：
+
+  ```java
+      @Test
+      public void testReduce() {
+          ConcurrentHashMap<String, Integer> concurrentHashMap = new ConcurrentHashMap<>();
+          for (int i = 1; i <= 5; i++) {
+              concurrentHashMap.put(Integer.toString(i), i);
+          }
+          //并行计算map的总和
+          //这里的2是并行数量
+          // transformer函数是计算元素结果（K，V），reducer是元素之间的运算规则
+          Integer count = concurrentHashMap.reduce(2,
+                  (k, v) -> Integer.valueOf(k) + v - 1, (value1, value2) -> value1 * value2);
+          System.out.println(count);
+      }
+  ```
+
+- `reduceValues`
+
+  只对元素的 value 进行计算。
+
+  ```java
+      @Test
+      public void testReduceValues() {
+          ConcurrentHashMap<String, Integer> concurrentHashMap = new ConcurrentHashMap<>();
+          for (int i = 0; i < 5; i++) {
+              concurrentHashMap.put(Integer.toString(i), i);
+          }
+          //并行计算map的总和
+          //这里的2是并行数量
+          //reduceValues只对value进行运算
+          Integer count = concurrentHashMap.reduceValues(2, Integer::sum);
+          System.out.println(count);
+      }
+  ```
+
+- `search`
+
+  集合的搜索方法
+
+  ```java
+      /**
+       * 测试search方法
+       */
+      @Test
+      public void testSearch() {
+          ConcurrentHashMap<String, Integer> concurrentHashMap = new ConcurrentHashMap<>();
+          for (int i = 0; i < 5; i++) {
+              concurrentHashMap.put(Integer.toString(i), i);
+          }
+          //这里的2是并行数
+          String value = concurrentHashMap.search(2, (k, v) -> {
+              //搜索逻辑
+              if (v % 4 == 0) {
+                  return k + "---";
+              }
+              return null;
+          });
+          System.out.println(value);
+      }
+  
+  ```
+
+- `computeIfAbsent`
+
+  - 若map存在指定key，直接返回结果。
+  - 若map中不存在指定key，则先插入后返回结果。
+
+  ```java
+      /**
+       * 测试map的computeIfAbsent方法
+       * 1.若map存在指定key，直接返回;
+       * 2.若map中不存在指定key，则先插入后返回;
+       */
+      @Test
+      public void testComputeIfAbsent() {
+          ConcurrentHashMap<String, Integer> concurrentHashMap = new ConcurrentHashMap<>();
+          for (int i = 0; i < 5; i++) {
+              concurrentHashMap.put(Integer.toString(i), i);
+          }
+          Integer value = 100;
+          //map中若存在该key，直接返回数据。若不存在该key，先put再返回。
+          Integer count = concurrentHashMap.computeIfAbsent("100", v -> value);
+          System.out.println(count);
+      }
+  ```
 
 
-单独开一篇文章
 
+---
 
 
 ### 线程安全的list
 
 #### Vector
 
-Vector 实现线程安全的原理是在 List 相关的每个方法上加 synchronized 关键字保证线程安全。
-
-与之类似的还有使用 `Collections.synchronizedList()` 包装List，也是借助 synchronized 实现的线程安全。
+采用`synchronized`在方法级别加锁，效率低。
 
 ```java
-ArrayList<Object> oldList = Lists.newArrayList();
-//使用Collections对list进行线程同步封装
-List<Object> safeList = Collections.synchronizedList(oldList);
+    public synchronized boolean add(E e) {
+        modCount++;
+        ensureCapacityHelper(elementCount + 1);
+        elementData[elementCount++] = e;
+        return true;
+    }
+```
+
+
+
+#### Collections包装List
+
+`Collections`类维护了一个`synchronizedList`类，该类把有关`list`的所有操作都被加上了锁，在执行任何方法之前都要获取锁对象`mutex`，实现了线程安全。
+
+```java
+    ArrayList<Object> oldList = Lists.newArrayList();
+    //使用Collections对list进行线程同步封装
+    List<Object> safeList = Collections.synchronizedList(oldList);
+```
+
+虽然这个包装的`list`实现了线程安全，但是在多线程的环境并不算太好。无论是读取还是写入操作，都需要先获取锁对象，这样会导致其它操作进入等待状态，效率较低。若并发量不高，可以使用，在并发量高的时候，性能不太好，**不推荐使用**。
+
+```java
+
+		//------------源码
+    public static <T> List<T> synchronizedList(List<T> list) {
+      	//判断是否随机访问，区分list的类型
+        return (list instanceof RandomAccess ?
+                new SynchronizedRandomAccessList<>(list) :
+                new SynchronizedList<>(list));
+    }
+
+//------------Collects内部的SynchronizedList类
+static class SynchronizedList<E>
+        extends SynchronizedCollection<E>
+        implements List<E> {
+        private static final long serialVersionUID = -7754090372962971524L;
+
+        final List<E> list;
+
+        SynchronizedList(List<E> list) {
+            super(list);
+            this.list = list;
+        }
+        SynchronizedList(List<E> list, Object mutex) {
+            super(list, mutex);
+            this.list = list;
+        }
+
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            synchronized (mutex) {return list.equals(o);}
+        }
+        public int hashCode() {
+            synchronized (mutex) {return list.hashCode();}
+        }
+				//执行方法之前都要先获取到锁对象mutex
+        public E get(int index) {
+            synchronized (mutex) {return list.get(index);}
+        }
+        public E set(int index, E element) {
+            synchronized (mutex) {return list.set(index, element);}
+        }
+  			
+  			......
+          
+}
 ```
 
 #### CopyOnWriteArrayList
 
+由于**排它锁**在一定读写分离特别是读操作特别多的情况下影响效率，所以在读操作多的时候不推荐使用**排它锁**。
+
+`CopyOnWriteArrayList`位于`Java.util.concurrent`包内，专门对并发进行了优化，实现了读写分离，而且**写操作**不会阻塞**读操作**，只有在**写-写**操作时才会阻塞。根据名字可以看到，`CopyOnWrite`大概意思就是在写操作的时候会进行自我复制，将原来的数据复制一份当作**副本**，然后将要写入的内容写入**副本**中，最后将副本替换原来的数据，即完成了写操作，同时不会影响读操作。
+
+```java
+//线程安全的list
+CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+CopyOnWriteArrayList<Integer> newList = new CopyOnWriteArrayList<Integer>(oldList);
+```
+
+##### 实现原理
+
+1. 创建过程
+
+   - 不传参数。
+
+     初始化一个长度为`0`的空数组，并赋值给内部数组`array`。
+
+   - 传入Collection。
+
+     按照传入集合的元素顺序迭代，复制到新数组中，并把新数组赋值给内部数组`array`。
+
+   ```java
+       private transient volatile Object[] array;
+   
+       final void setArray(Object[] a) {
+           array = a;
+       }
+   
+   		/**
+        * Creates an empty list.
+        */
+       public CopyOnWriteArrayList() {
+           setArray(new Object[0]);
+       }
+   
+       public CopyOnWriteArrayList(Collection<? extends E> c) {
+           Object[] elements;
+           if (c.getClass() == CopyOnWriteArrayList.class)
+               elements = ((CopyOnWriteArrayList<?>)c).getArray();
+           else {
+               elements = c.toArray();
+               // c.toArray might (incorrectly) not return Object[] (see 6260652)
+               if (elements.getClass() != Object[].class)
+                   elements = Arrays.copyOf(elements, elements.length, Object[].class);
+           }
+           setArray(elements);
+       }
+   ```
+
+   
+
+2. 读方法
+
+   首先`array`是存放原本数据的数组，其由`volatile`关键字修饰，代表若其它线程修改了`array`里的值，会被动态发现。根据源码可以看到在读操作的时候是没有实现线程同步的，也不会被写操作阻塞，原因就是`array`数组具有可见性。
+
+   ```java
+        /** The array, accessed only via getArray/setArray. */
+       private transient volatile Object[] array;
+   
+       /**
+        * Gets the array.  Non-private so as to also be accessible
+        * from CopyOnWriteArraySet class.
+        */
+       final Object[] getArray() {
+           return array;
+       }   
+   
+   		private E get(Object[] a, int index) {
+           return (E) a[index];
+       }
+   
+   		public E get(int index) {
+           return get(getArray(), index);
+       }
+   ```
+
+   
+
+3. 写方法
+
+   在进行写操作的时候，首先会加一把重入锁，但是由于这把锁在写操作内部，所以仅限于`写-写`操作时会阻塞。
+
+   根据源码可以看出，在写操作之前，会完成一次原数据的复制，并新建副本，指定长度`+1`，然后将要添加的元素放在副本的最后一个元素，最后将副本赋值给原数据`array`，即完成了写操作。由于`array`本身是由`volatile`修饰的，具有可见性，所以写入数据会立即被其它线程发现，读操作就不会受到影响，也完成了`读-写不互斥`。
+
+   ```java
+    /** The array, accessed only via getArray/setArray. */
+       private transient volatile Object[] array;
+   
+       /**
+        * Gets the array.  Non-private so as to also be accessible
+        * from CopyOnWriteArraySet class.
+        */
+       final Object[] getArray() {
+           return array;
+       }   
+   
+     
+   		public boolean add(E e) {
+           final ReentrantLock lock = this.lock;
+        		//加锁
+           lock.lock();
+           try {
+             	//获取原数据
+               Object[] elements = getArray();
+            
+               int len = elements.length;
+               Object[] newElements = Arrays.copyOf(elements, len + 1);
+               newElements[len] = e;
+               setArray(newElements);
+               return true;
+           } finally {
+             	//释放锁
+               lock.unlock();
+           }
+       }
+   ```
 
 
-#### SkipList跳表
 
 
 
 ### BlockQueue阻塞队列
 
-单独开一篇文章
+[BlockQueue阻塞队列](https://albertyang0801.github.io/blog/java/concurrent/single/BlockQueue阻塞队列.html)
 
 
 
